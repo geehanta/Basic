@@ -1,0 +1,88 @@
+{% load customfilter %}
+<div class="container-fluid">
+    <form action="{% url 'save-post' %}" id="post-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ post.id }}">
+        <input type="hidden" name="user" value="{{ request.user.id|default:'' }}">
+        <input type="hidden" name="default_title" value="{{ request.GET.default_title }}">
+        <div class="form-group mb-3">
+            <label for="title" class="control-label">Title</label>
+            <input type="text" class="form-control rounded-0" id="title" name="title" value="{{ request.GET.default_title }}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="description" class="control-label">Description</label>
+            <textarea class="form-control rounded-0" name="description" id="description" rows="5">{{ post.description }}</textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label for="file_path" class="control-label">File</label>
+            <input type="file" class="form-control rounded-0" id="file_path" name="file_path" accept='image/*, video/*, audio/*, application/pdf, text/csv, text/plain, application/zip, .docs,.doc, application/ppt, .ppt' {% if not post %} required {% endif %}>
+            <small class="text-muted">Accepts multiple formats</small>
+            {% if post.file_path %}
+            <div>
+                <small>
+                    <span class="text-muted">Current File:</span>
+                    <a href="{{ post.file_path.url }}" target="_blank">{{ post.file_path|replaceBlank:"uploads/" }}</a>
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+<script>
+    $(function() {
+    $('#post-form').submit(function(e) {
+        e.preventDefault();
+        var _this = $(this);
+        $('.err-msg').remove();
+        var el = $('<div>');
+        el.addClass("alert alert-danger err-msg");
+        el.hide();
+
+        // Validate form fields
+        if (_this[0].checkValidity() == false) {
+            _this[0].reportValidity();
+            return false;
+        }
+
+        start_loader();
+        var formData = new FormData($(this)[0]);
+
+        // Debug: Log form data
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+
+        $.ajax({
+            url: "{% url 'save-post' %}",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            method: 'POST',
+            type: 'POST',
+            dataType: 'json',
+            headers: {
+                'X-CSRFToken': "{{ csrf_token }}"  // Ensure CSRF token is included
+            },
+            error: function(err) {
+                console.log(err);
+                alert("An error occurred.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();  // Reload the page on success
+                } else if (resp.status == 'failed' && !!resp.msg) {
+                    el.html(resp.msg);  // Display error message
+                } else {
+                    el.text("An error occurred.");  // Generic error message
+                }
+                _this.prepend(el);
+                el.show('slow');
+                $("html, body, .modal ").scrollTop(0);
+                end_loader();
+            }
+        });
+    });
+});
+</script>

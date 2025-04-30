@@ -1,0 +1,234 @@
+{% extends "base.html" %} {% load humanize %} {% load customfilter %} {% block pageContent %}
+<style>
+    main {
+        height: 100%;
+        width: auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        background-color: #eeeeee;
+
+    }
+    .top-auto-height {
+        position: absolute; 
+         top: 20%;
+        height: auto; /* Set height to auto */
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+*
+{
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+body
+{
+  font-family: 'Roboto', sans-serif;
+  overflow: hidden;
+  /* background: #5f2fb3; */
+}
+
+div.clock
+{
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 50px auto;
+  background-color: #efedf4;
+  border-radius: 40px;
+  padding: 25px;
+  box-shadow: 0px 65px 70px -50px #0b504d;
+}
+
+div.clock div.circle
+{
+  position: relative;
+  width: 240px;
+  height: 240px;
+  background: teal;
+  margin: 5px auto;
+  border-radius: 100%;
+  border: 7px solid rgba(255, 255, 255, 0.137);
+  box-shadow: inset 0 0 150px rgba(0,0,0,0.35), 
+              inset 0 40px 20px -10px rgba(0,0,0,0.3);
+}
+
+div.clock div.circle > span
+{
+  position: absolute;
+  width: 20px;
+  height: 100%;
+  display: inline-block;
+  top: 0;
+  left: 50%;
+  margin-left: -10px;
+  text-align: center;
+}
+
+div.clock div.circle span:before
+{
+  content: '';
+  display: inline-block;
+  border-radius: 100%;
+  margin-top: 10px;
+}
+
+div.clock div.circle span.hour:before
+{
+  width: 14px;
+  height: 14px;
+  background-color: rgba(255,255,255,0.7);
+}
+
+div.clock div.circle span.hour
+{
+  transform: rotate(30deg);
+}
+
+div.clock div.circle span.min:before
+{
+  width: 7px;
+  height: 7px;
+  background-color: rgba(255,255,255,0.3);
+}
+
+div.clock div.circle span.min
+{
+  transform: rotate(258deg);
+}
+
+div.time
+{
+  text-align: center;
+}
+
+div.time span.hour-num
+{
+  position: relative;
+  font-size: 91px;
+  font-weight: bold;
+  top: 66px;
+  margin-left: -70px;
+  color: rgba(255,255,255,0.9);
+}
+
+div.time span.hour-num span
+{
+  color: rgba(0,0,0,0.15);
+}
+
+div.time span.min-num
+{
+  position: absolute;
+  font-size: 26px;
+  font-weight: 400;
+  top: 100px;
+  text-align: left;
+  color: rgba(255,255,255,0.3);
+  margin-left: 5px;
+}
+
+div.time span.min-num span.am-pm
+{
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.1);
+  letter-spacing: 0px;
+  margin-top: 3px;
+}
+
+div.st
+{
+  text-align: center;
+  margin-top: 77px;
+  font-size: 10px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+}
+
+div.city
+{
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #6e6c6a;
+  margin-top: -18px;
+}
+
+div.city i
+{
+  color: rgba(0,0,0,0.5);
+  font-size: 12px;
+}
+
+div.city span.add-city
+{
+  float: right;
+  margin-top: -23px;
+}
+
+</style>
+<!-- <div class="d-flex flex-column w-100 justify-content-center align-items-center"> -->
+
+<body>
+   <div class="clock">
+            
+    <div class="circle">
+        <span class="hour"></span>
+        <span class="min"></span>
+        <div class="time">
+            <span class="hour-num">
+                <span>0</span>4
+            </span>
+            <span class="min-num">16
+                <span class="am-pm">PM</span>
+            </span>
+        </div>
+        <br>
+        <div class="st">Standard Time</div>
+    </div>
+    <div class="city">
+        <i class="fa fa-key"></i> <br/>Kisumu
+        <span class="add-city">
+            <i class="fa fa-clock"></i>
+        </span>
+    </div>
+</div>
+   
+</body>
+</html>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    // Get the current date and time
+    var now = new Date();
+
+    // Get the current hours, minutes, and seconds
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    var seconds = now.getSeconds();
+
+    // Format the hours to 12-hour format
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+
+    // Add leading zeros to minutes and seconds if needed
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    // Display the time in the desired format
+    document.querySelector('.hour-num').innerHTML = '<span>' + hours + '</span>' + minutes;
+    document.querySelector('.min-num').innerHTML = seconds + '<span class="am-pm">' + ampm + '</span>';
+</script>
+{% endblock ScriptBlock %}

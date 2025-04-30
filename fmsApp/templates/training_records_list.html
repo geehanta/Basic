@@ -1,0 +1,55 @@
+{% extends "base.html" %} {% load humanize %} {% load customfilter %} {% block pageContent %}
+<style>
+    main {
+        height: 100%;
+        width: auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        background-color: #eeeeee;
+
+    }
+    .top-auto-height {
+        position: absolute; 
+         top: 20%;
+        height: auto; /* Set height to auto */
+        }
+</style>
+<!-- <div class="d-flex flex-column w-100 justify-content-center align-items-center"> -->
+    <div class="container mt-4">
+        <h3>All Training Records</h3>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Facility</th>
+                    <th>Section</th>
+                    <th>Employee ID</th>
+                    <th>Supervisor</th>
+                    <th>Date Reviewed</th>
+                    <th>Printed Name</th>
+                    <th>QA Printed Name</th>
+                    <th>Signatures</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.facility_assigned }}</td>
+                    <td>{{ record.section_assigned }}</td>
+                    <td>{{ record.employee_id }}</td>
+                    <td>{{ record.supervisor_name }}</td>
+                    <td>{{ record.date_reviewed }}</td>
+                    <td>{{ record.printed_name }}</td>
+                    <td>{{ record.qa_printed_name }}</td>
+                    <td>{{ record.signature }} / {{ record.qa_signature }}</td>
+                    <td>{{ record.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock pageContent %} {% block ScriptBlock %}
+
+{% endblock ScriptBlock %}

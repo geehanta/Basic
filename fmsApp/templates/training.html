@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% load humanize %} {% load customfilter %} {% block pageContent %}
+<style>
+    main {
+        height: 100%;
+        width: auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        background-color: #eeeeee;
+
+    }
+    .top-auto-height {
+        position: absolute; 
+         top: 20%;
+        height: auto; /* Set height to auto */
+        }
+</style>
+ <!-- Add New Training Record (Top Table) -->
+<div class="container-fluid mb-3">
+    <form method="POST" enctype="multipart/form-data" id="trainingRecordForm">
+        {% csrf_token %}
+        <table class="table table-bordered bg-white" id="add-record-table">
+            <thead class="bg-dark text-white text-center">
+                <tr>
+                    <th>Date Reviewed</th>
+                    <th>Printed Name</th>
+                    <th>Signature</th>
+                    <th>QA Review Date</th>
+                    <th>QA Printed Name</th>
+                    <th>QA Signature</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="trainingRecordBody">
+                <tr>
+                    <td><input type="date" class="form-control" name="date_reviewed"></td>
+                    <td><input type="text" class="form-control" name="printed_name" placeholder="Reviewer Name"></td>
+                    <td><input type="text" class="form-control" name="signature" placeholder="Signature"></td>
+                    <td><input type="date" class="form-control" name="qa_review_date"></td>
+                    <td><input type="text" class="form-control" name="qa_printed_name" placeholder="QA Name"></td>
+                    <td><input type="text" class="form-control" name="qa_signature" placeholder="QA Signature"></td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <button type="button" class="btn btn-dark btn-sm" onclick="removeRow(this)">-</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addRow()">+</button>
+                            <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<!-- View Existing Records (DataTable) -->
+<div class="container-fluid">
+    <table class="table table-striped table-bordered" id="post-list">
+        <thead class="bg-gradient bg-dark bg-opacity-50 text-light text-center">
+            <tr>
+                <th>Date Reviewed</th>
+                <th>Printed Name</th>
+                <th>Signature</th>
+                <th>QA Review Date</th>
+                <th>QA Printed Name</th>
+                <th>QA Signature</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td class="align-middle">{{ post.date_reviewed|date:"Y-m-d" }}</td>
+                <td class="align-middle">{{ post.printed_name }}</td>
+                <td class="align-middle">{{ post.signature }}</td>
+                <td class="align-middle">{{ post.qa_review_date|date:"Y-m-d" }}</td>
+                <td class="align-middle">{{ post.qa_printed_name }}</td>
+                <td class="align-middle">{{ post.qa_signature }}</td>
+                <td class="align-middle text-center">
+                    <a class="btn btn-outline-primary btn-sm edit-data" href="javascript:void(0)" data-id="{{ post.pk }}" title="Edit">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm delete-data" type="button" data-id="{{ post.pk }}" title="Delete">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    function addRow() {
+        const newRow = `
+        <tr>
+            <td><input type="date" class="form-control" name="date_reviewed"></td>
+            <td><input type="text" class="form-control" name="printed_name" placeholder="Reviewer Name"></td>
+            <td><input type="text" class="form-control" name="signature" placeholder="Signature"></td>
+            <td><input type="date" class="form-control" name="qa_review_date"></td>
+            <td><input type="text" class="form-control" name="qa_printed_name" placeholder="QA Name"></td>
+            <td><input type="text" class="form-control" name="qa_signature" placeholder="QA Signature"></td>
+            <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+                    <button type="button" class="btn btn-dark btn-sm" onclick="removeRow(this)">-</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addRow()">+</button>
+                    <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                </div>
+            </td>
+        </tr>`;
+        $('#trainingRecordBody').append(newRow);
+    }
+
+    function removeRow(button) {
+        $(button).closest('tr').remove();
+    }
+</script>
+{% endblock ScriptBlock %}
