@@ -11,7 +11,7 @@ from django.dispatch import receiver
 class TrainingRecord(models.Model):
     facility_assigned = models.CharField(max_length=100)
     section_assigned = models.CharField(max_length=100)
-    employee_id = models.CharField(max_length=100)
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='training_records')  # This is the logged-in staff user
 
     supervisor_name = models.CharField(max_length=100)
     supervisor_date = models.DateField()
@@ -19,17 +19,17 @@ class TrainingRecord(models.Model):
     records_maintenance_personnel = models.CharField(max_length=100)
     records_maintenance_date = models.DateField()
 
-    date_reviewed = models.DateField(auto_now_add=True)
-    printed_name = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviewer')
-    signature = models.CharField(max_length=10)
+    date_reviewed = models.DateField(auto_now_add=True)  # Auto-filled for staff
+    printed_name = models.CharField(max_length=100)  # Entered by staff
+    signature = models.CharField(max_length=10)       # Entered by staff
 
     qa_review_date = models.DateField(null=True, blank=True)
-    qa_printed_name = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='qa_reviewer')
+    qa_printed_name = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='qa_reviews')
     qa_signature = models.CharField(max_length=10, blank=True)
 
     def __str__(self):
-        return f"{self.employee_id} - {self.printed_name.username}"
-
+        return f"{self.employee.username} - {self.date_reviewed}"
+    
 class Post(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),

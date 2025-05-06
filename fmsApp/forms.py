@@ -99,7 +99,21 @@ class SavePost(forms.ModelForm):
             return user
         except:
             raise forms.ValidationError("User ID is unrecognized.")
-class TrainingRecordForm(forms.ModelForm):
+class TrainingRecordStaffForm(forms.ModelForm):
     class Meta:
         model = TrainingRecord
-        exclude = ['date_reviewed', 'printed_name', 'qa_printed_name', 'qa_review_date']
+        exclude = ['employee', 'qa_review_date', 'qa_printed_name', 'qa_signature', 'date_reviewed']
+
+        widgets = {
+            'supervisor_date': forms.DateInput(attrs={'type': 'date'}),
+            'records_maintenance_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class TrainingRecordReviewerForm(forms.ModelForm):
+    class Meta:
+        model = TrainingRecord
+        fields = ['qa_review_date', 'qa_signature']
+
+        widgets = {
+            'qa_review_date': forms.DateInput(attrs={'type': 'date'}),
+        }

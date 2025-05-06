@@ -1,16 +1,15 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.decorators import login_required, user_passes_test
 from fms_django.settings import MEDIA_ROOT, MEDIA_URL
 import json
+from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
-from fmsApp.forms import UserRegistration, SavePost, UpdateProfile, UpdatePasswords, TrainingRecordForm
+from fmsApp.forms import UserRegistration, SavePost, UpdateProfile, UpdatePasswords, TrainingRecordStaffForm, TrainingRecordReviewerForm
 from fmsApp.models import Post, TrainingRecord 
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -30,57 +29,53 @@ def home(request):
     return render(request, 'home.html',context)
 # For pages that require login
 @login_required
-def training_record_view(request):
+def create_training_record(request):
+    if not request.user.groups.filter(name='staff').exists():
+        return redirect('unauthorized')
+
     if request.method == 'POST':
-        facility_assigned = request.POST.get('facility_assigned')
-        section_assigned = request.POST.get('section_assigned')
-        employee_id = request.POST.get('employee_id')
-        supervisor_name = request.POST.get('supervisor_name')
-        supervisor_date = request.POST.get('supervisor_date')
-        records_maintenance_personnel = request.POST.get('records_maintenance_personnel')
-        records_maintenance_date = request.POST.get('records_maintenance_date')
+        form = TrainingRecordStaffForm(request.POST)
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.employee = request.user
+            record.date_reviewed = timezone.now().date()
+            record.save()
+            return redirect('record_success')
+    else:
+        form = TrainingRecordStaffForm()
 
-        signatures = request.POST.getlist('signature[]')
-        qa_signatures = request.POST.getlist('qa_signature[]')
-        dates_reviewed = request.POST.getlist('date_reviewed[]')
-
-        for i in range(len(signatures)):
-            training_record = TrainingRecord(
-                facility_assigned=facility_assigned,
-                section_assigned=section_assigned,
-                employee_id=employee_id,
-                supervisor_name=supervisor_name,
-                supervisor_date=supervisor_date,
-                records_maintenance_personnel=records_maintenance_personnel,
-                records_maintenance_date=records_maintenance_date,
-                date_reviewed=dates_reviewed[i],
-                printed_name=request.user,
-                signature=signatures[i],
-            )
-
-            if request.user.groups.filter(name='Reviewer').exists():
-                training_record.qa_review_date = timezone.now()
-                training_record.qa_printed_name = request.user
-                training_record.qa_signature = qa_signatures[i]
-
-            training_record.save()
-
-        messages.success(request, "Training record(s) submitted successfully!")
-        return redirect('training-record')
-
-    # If GET, just create a blank form
-    form = TrainingRecordForm()
-    context = {
+    return render(request, 'training.html', {
         'form': form,
-        'today': timezone.now().date(),
-    }
-    return render(request, 'training.html', context)
-
+        'employee_id': request.user.id,
+        'is_staff': True,
+    })
 
 @login_required
-def view_training_records(request):
-    records = TrainingRecord.objects.all().order_by('-created_at')
-    return render(request, 'training_records_list.html', {'records': records})
+def training_record_view(request, record_id):
+    if not request.user.groups.filter(name='reviewer').exists():
+        return redirect('unauthorized')
+
+    record = get_object_or_404(TrainingRecord, id=record_id)
+
+    if request.method == 'POST':
+        form = TrainingRecordReviewerForm(request.POST, instance=record)
+        if form.is_valid():
+            qa_record = form.save(commit=False)
+            qa_record.qa_printed_name = request.user
+            qa_record.save()
+            return redirect('review_success')
+    else:
+        form = TrainingRecordReviewerForm(instance=record)
+
+    # Get previously reviewed records by this reviewer
+    reviewed_records = TrainingRecord.objects.filter(qa_printed_name=request.user)
+
+    return render(request, 'review_form.html', {
+        'form': form,
+        'record': record,
+        'is_reviewer': True,
+        'reviewed_records': reviewed_records,
+    })
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='reviewer').exists())
 def reviewer_dashboard(request):

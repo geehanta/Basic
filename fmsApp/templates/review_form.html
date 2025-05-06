@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block pageContent %}
+<div class="container mt-5">
+    <h4 class="mb-4">Review Training Record</h4>
+
+    <!-- Record Details (Read-only) -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Record Details (Read-only)</h5>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><strong>Facility Assigned</strong></label>
+                    <input class="form-control" value="{{ record.facility_assigned }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Section Assigned</strong></label>
+                    <input class="form-control" value="{{ record.section_assigned }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Employee ID</strong></label>
+                    <input class="form-control" value="{{ record.employee.id }}" disabled>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><strong>Supervisor Name</strong></label>
+                    <input class="form-control" value="{{ record.supervisor_name }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Supervisor Date</strong></label>
+                    <input class="form-control" value="{{ record.supervisor_date }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Records Personnel</strong></label>
+                    <input class="form-control" value="{{ record.records_maintenance_personnel }}" disabled>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><strong>Records Date</strong></label>
+                    <input class="form-control" value="{{ record.records_maintenance_date }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Reviewer Printed Name</strong></label>
+                    <input class="form-control" value="{{ record.printed_name }}" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label><strong>Reviewer Signature</strong></label>
+                    <input class="form-control" value="{{ record.signature }}" disabled>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QA Reviewer Form -->
+    <form method="POST" class="mt-4">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">QA Reviewer Section</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="id_qa_review_date"><strong>QA Review Date</strong></label>
+                        {{ form.qa_review_date }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_qa_signature"><strong>QA Signature</strong></label>
+                        {{ form.qa_signature }}
+                    </div>
+                    <div class="col-md-4">
+                        <label><strong>QA Printed Name</strong></label>
+                        <input class="form-control" value="{{ request.user.get_full_name|default:request.user.username }}" disabled>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Previously Reviewed Records Table -->
+    <div class="card mt-5">
+        <div class="card-body">
+            <h5 class="card-title">Previously Reviewed Records</h5>
+            <table id="reviewedRecordsTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr class="text-center bg-secondary text-white">
+                        <th>Employee ID</th>
+                        <th>Facility</th>
+                        <th>Section</th>
+                        <th>QA Review Date</th>
+                        <th>QA Printed Name</th>
+                        <th>QA Signature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reviewed_records %}
+                    <tr>
+                        <td>{{ r.employee.id }}</td>
+                        <td>{{ r.facility_assigned }}</td>
+                        <td>{{ r.section_assigned }}</td>
+                        <td>{{ r.qa_review_date }}</td>
+                        <td>{{ r.qa_printed_name }}</td>
+                        <td>{{ r.qa_signature }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block ScriptBlock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#reviewedRecordsTable').DataTable();
+    });
+</script>
+{% endblock %}

@@ -1,4 +1,7 @@
-{% extends "base.html" %} {% load humanize %} {% load customfilter %} {% block pageContent %}
+{% extends "base.html" %}
+{% load humanize %}
+{% load customfilter %}
+{% block pageContent %}
 <style>
     main {
         height: 100%;
@@ -8,18 +11,54 @@
         justify-content: center;
         overflow: auto;
         background-color: #eeeeee;
-
     }
     .top-auto-height {
         position: absolute; 
-         top: 20%;
-        height: auto; /* Set height to auto */
-        }
+        top: 20%;
+        height: auto;
+    }
 </style>
- <!-- Add New Training Record (Top Table) -->
-<div class="container-fluid mb-3">
+
+<div class="container-fluid mt-4">
     <form method="POST" enctype="multipart/form-data" id="trainingRecordForm">
         {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="facility_assigned"><strong>Facility Assigned</strong></label>
+                <input type="text" class="form-control" name="facility_assigned" required>
+            </div>
+            <div class="col-md-4">
+                <label for="section_assigned"><strong>Section Assigned</strong></label>
+                <input type="text" class="form-control" name="section_assigned" required>
+            </div>
+            <div class="col-md-4">
+                <label><strong>Employee ID</strong></label>
+                <input type="text" class="form-control" value="{{ request.user.id }}" readonly>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="supervisor_name"><strong>Supervisor Name</strong></label>
+                <input type="text" class="form-control" name="supervisor_name" required>
+            </div>
+            <div class="col-md-4">
+                <label for="supervisor_date"><strong>Supervisor Date</strong></label>
+                <input type="date" class="form-control" name="supervisor_date" required>
+            </div>
+            <div class="col-md-4">
+                <label for="records_maintenance_personnel"><strong>Records Maintenance Personnel</strong></label>
+                <input type="text" class="form-control" name="records_maintenance_personnel" required>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="records_maintenance_date"><strong>Records Maintenance Date</strong></label>
+                <input type="date" class="form-control" name="records_maintenance_date" required>
+            </div>
+        </div>
+
         <table class="table table-bordered bg-white" id="add-record-table">
             <thead class="bg-dark text-white text-center">
                 <tr>
@@ -34,18 +73,21 @@
             </thead>
             <tbody id="trainingRecordBody">
                 <tr>
-                    <td><input type="date" class="form-control" name="date_reviewed"></td>
-                    <td><input type="text" class="form-control" name="printed_name" placeholder="Reviewer Name"></td>
-                    <td><input type="text" class="form-control" name="signature" placeholder="Signature"></td>
-                    <td><input type="date" class="form-control" name="qa_review_date"></td>
-                    <td><input type="text" class="form-control" name="qa_printed_name" placeholder="QA Name"></td>
-                    <td><input type="text" class="form-control" name="qa_signature" placeholder="QA Signature"></td>
+                    <td><input type="date" class="form-control" name="date_reviewed" value="{{ today }}" readonly></td>
+                    <td><input type="text" class="form-control" name="printed_name" value="{{ request.user.get_full_name|default:request.user.username }}" readonly></td>
+                    <td><input type="text" class="form-control" name="signature" required></td>
+
+                    {% if user.groups.all.0.name == "staff" %}
+                        <td><input type="date" class="form-control" name="qa_review_date" disabled></td>
+                        <td><input type="text" class="form-control" name="qa_printed_name" disabled></td>
+                        <td><input type="text" class="form-control" name="qa_signature" disabled></td>
+                    {% else %}
+                        <td><input type="date" class="form-control" name="qa_review_date"></td>
+                        <td><input type="text" class="form-control" name="qa_printed_name" value="{{ request.user.get_full_name|default:request.user.username }}" readonly></td>
+                        <td><input type="text" class="form-control" name="qa_signature"></td>
+                    {% endif %}
                     <td class="text-center">
-                        <div class="d-flex justify-content-center gap-1">
-                            <button type="button" class="btn btn-dark btn-sm" onclick="removeRow(this)">-</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="addRow()">+</button>
-                            <button type="submit" class="btn btn-success btn-sm">Submit</button>
-                        </div>
+                        <button type="submit" class="btn btn-success btn-sm">Submit</button>
                     </td>
                 </tr>
             </tbody>
@@ -53,8 +95,9 @@
     </form>
 </div>
 
-<!-- View Existing Records (DataTable) -->
-<div class="container-fluid">
+<!-- Existing Records -->
+<div class="container-fluid mt-4">
+    <h5 class="mb-3">Existing Training Records</h5>
     <table class="table table-striped table-bordered" id="post-list">
         <thead class="bg-gradient bg-dark bg-opacity-50 text-light text-center">
             <tr>
@@ -89,32 +132,8 @@
         </tbody>
     </table>
 </div>
+{% endblock pageContent %}
 
-
-{% endblock pageContent %} {% block ScriptBlock %}
-<script>
-    function addRow() {
-        const newRow = `
-        <tr>
-            <td><input type="date" class="form-control" name="date_reviewed"></td>
-            <td><input type="text" class="form-control" name="printed_name" placeholder="Reviewer Name"></td>
-            <td><input type="text" class="form-control" name="signature" placeholder="Signature"></td>
-            <td><input type="date" class="form-control" name="qa_review_date"></td>
-            <td><input type="text" class="form-control" name="qa_printed_name" placeholder="QA Name"></td>
-            <td><input type="text" class="form-control" name="qa_signature" placeholder="QA Signature"></td>
-            <td class="text-center">
-                <div class="d-flex justify-content-center gap-1">
-                    <button type="button" class="btn btn-dark btn-sm" onclick="removeRow(this)">-</button>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="addRow()">+</button>
-                    <button type="submit" class="btn btn-success btn-sm">Submit</button>
-                </div>
-            </td>
-        </tr>`;
-        $('#trainingRecordBody').append(newRow);
-    }
-
-    function removeRow(button) {
-        $(button).closest('tr').remove();
-    }
-</script>
+{% block ScriptBlock %}
+<!-- Additional JS if needed -->
 {% endblock ScriptBlock %}
