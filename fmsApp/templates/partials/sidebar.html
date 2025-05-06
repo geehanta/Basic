@@ -9,12 +9,12 @@
   font-family: 'Poppins', sans-serif;
 }
 .sidebar{
-  position: fixed;
+  position: absolute;
   top: 20%;
   left: 1%;
   height: 70%;
   width: 260px;
-  background-color: rgba(148, 144, 144, 0.301);
+  background-color: rgba(42, 70, 56, 0.404);
   border-radius: 20px;
   border: 2px solid rgb(255, 255, 255);
   backdrop-filter: blur(20px);
@@ -109,7 +109,7 @@
 
 .sidebar .nav-links li.active i,
 .sidebar .nav-links li:hover i{
-  color: teal;  
+  color: rgb(10, 41, 41);  
 }
 .sidebar .nav-links li.showMenu i.arrow{
   transform: rotate(-180deg);
@@ -139,7 +139,7 @@
 .sidebar .nav-links li .sub-menu{
   padding: 6px 6px 14px 80px;
   margin-top: -10px;
-  background: #fff;
+  background: rgba(87, 141, 114, 0.315);
   display: none;
 }
 .sidebar .nav-links li.showMenu .sub-menu{
@@ -147,7 +147,7 @@
 }
 .sidebar .nav-links li .sub-menu a{
   color: #1d1b31;
-  font-size: 15px;
+  font-size: 18px;
   padding: 5px 0;
   white-space: nowrap;
   opacity: 0.6;
@@ -178,7 +178,7 @@
   display: none;
 }
 .sidebar.close .nav-links li .sub-menu .link_name{
-  font-size: 18px;
+  font-size: 20px;
   opacity: 1;
   display: block;
 }
@@ -220,7 +220,7 @@
   object-fit: cover;
   border-radius: 50%;
   margin: 0 14px 0 12px;
-  background: rgb(4, 75, 75);
+  background: rgba(5, 126, 55, 0.877);
   transition: all 0.5s ease;
 }
 .sidebar.close .profile-details img{
@@ -253,9 +253,6 @@
   font-size: 12px;
 }
 .home-section{
-  /* position: relative;
-  background: #1c4ccf;
-  height: 100vh; */
   left: 260px;
   width: calc(100% - 260px);
   transition: all 0.5s ease;
@@ -321,9 +318,9 @@
       </div>
       <ul class="sub-menu">
         <li><a class="link_name" href="#">Training Folders</a></li>
-        <li><a href="{% url 'new_training' %}">Add training</a></li>
         {% if user.id %}
-        <li><a href="{% url 'posts-page' %}">Upload Files</a></li>
+        <li><a href="{% url 'new_training' %}">Add record</a></li>
+        <li><a href="{% url 'posts-page' %}">Upload </a></li>
         <li><a href="{% url 'training_folder' %}">My files</a></li>
         {% endif %}
         {% if reviewer.id %}

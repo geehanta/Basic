@@ -1,60 +1,118 @@
 {% load static %}
-<header>
-    <!-- Intro settings -->
+<head>
     <style>
-        #intro {
-            /* Margin to fix overlapping fixed navbar */
-            margin-top: 30px;
+        /* Semi-transparent dark background */
+        .offcanvas-start {
+          background-color: rgba(100, 96, 96, 0.582); /* black with 85% opacity */
+          color: white;
         }
-        
-        @media (max-width: 991px) {
-            #intro {
-                /* Margin to fix overlapping fixed navbar */
-                margin-top: 25px;
-            }
+      
+        /* Navbar links in the sidebar */
+        .offcanvas .nav-link {
+          color: #f0f0f0; /* light grey */
+          transition: background-color 0.3s, color 0.3s;
+          padding: 10px 15px;
+          border-radius: 5px;
         }
-    </style>
-
+      
+        .offcanvas .nav-link:hover {
+          background-color: teal;
+          color: white;
+        }
+      
+        /* Avatar alignment */
+        .offcanvas .nav-link img {
+          width: 30px;
+          height: 30px;
+          object-fit: cover;
+        }
+      
+        .offcanvas .nav-item {
+          margin-bottom: 10px;
+        }
+      
+        /* Optional: make links slightly larger for easier mobile tapping */
+        .offcanvas .nav-link {
+          font-size: 1.05rem;
+        }
+      </style>
+      
+</head>
+<header>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-teal fixed-top shadow" style="background-color: teal;">
-        <div class="container">
-            <!-- Navbar brand -->
-            <a class="navbar-brand" target="_blank" href="{% url 'home' %}">
-                <img src="{{ MEDIA_URL }}/default/microscope.svg" height="16" alt="{{ MEDIA_URL }}" loading="lazy" style="margin-top: -3px;" /><span style="color: teal;">BSL</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01" aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarExample01">
-                <ul class="navbar-nav mr-auto me-auto mb-2 mb-lg-0" id="topNav">    
-                </ul>
-                <ul class="navbar-nav d-flex flex-row">
-                    {% if user.id %} {% if user.profile.user_type == 1 %} {% endif %}
-                    <li class="nav-item me-3 me-lg-0">
-                        <a class="nav-link" href="{% url 'profile' %}">
-                            <span class="me-3"><img src="{{ MEDIA_URL }}/default/default-avatar.png" alt="User Avatar" id="user-avatar" class="img-thumbnail rounded-circle"></span><span style="color: antiquewhite;">Welcome, {{ user.first_name }} {{user.last_name}} </span>
-                        </a>
-                    </li>
-                    <li class="nav-item me-3 me-lg-0">
-                        <a class="nav-link" href="{% url 'logout' %}"style="color:white;">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item me-3 me-lg-0">
-                        <a class="nav-link" href="{% url 'login' %}"style="color:antiquewhite;">Login</a>
-                    </li>
-                    <li class="nav-item me-3 me-lg-0">
-                        <a class="nav-link" href="{% url 'register-user' %}"style="color:white;">Signup</a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+          <img src="{{ MEDIA_URL }}/default/microscope.svg" height="20" alt="Logo" class="me-2" loading="lazy">
+          <span class="text-light fw-bold">BSL</span>
+        </a>
+  
+        <!-- Toggler for offcanvas sidebar -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+  
+        <!-- Main nav (hidden on small screens) -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto" id="topNav">
+            <!-- Add more nav links here -->
+          </ul>
+  
+          <!-- Desktop Login/Logout -->
+          <ul class="navbar-nav d-none d-lg-flex align-items-center">
+            {% if user.id %}
+              <li class="nav-item me-3">
+                <a class="nav-link text-light d-flex align-items-center" href="{% url 'profile' %}">
+                  <img src="{{ MEDIA_URL }}/default/default-avatar.png" alt="User Avatar" class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                  Welcome, {{ user.first_name }} {{ user.last_name }}
+                </a>
+              </li>
+              <li class="nav-item me-3">
+                <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
+              </li>
+            {% else %}
+              <li class="nav-item me-3">
+                <a class="nav-link text-light" href="{% url 'login' %}">Login</a>
+              </li>
+              <li class="nav-item me-3">
+                <a class="nav-link text-light" href="{% url 'register-user' %}">Signup</a>
+              </li>
+            {% endif %}
+          </ul>
         </div>
+      </div>
     </nav>
-    <!-- Navbar -->
-
-    <!-- Jumbotron -->
-    <div id="intro" class="pt-2 text-center bg-light">
+  
+    <!-- Offcanvas Sidebar for Small Screens -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSidebar" aria-labelledby="offcanvasSidebarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasSidebarLabel">Menu</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+          {% if user.id %}
+            <li class="nav-item mb-3">
+              <a class="nav-link d-flex align-items-center" href="{% url 'profile' %}">
+                <img src="{{ MEDIA_URL }}/default/default-avatar.png" alt="User Avatar" class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                Welcome, {{ user.first_name }} {{ user.last_name }}
+              </a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link" href="{% url 'register-user' %}">Signup</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-    <!-- Jumbotron -->
-</header>
-
+  </header>
+  
+  

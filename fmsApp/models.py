@@ -11,7 +11,7 @@ from django.dispatch import receiver
 class TrainingRecord(models.Model):
     facility_assigned = models.CharField(max_length=100)
     section_assigned = models.CharField(max_length=100)
-    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='training_records')  # This is the logged-in staff user
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='training_records',null=True)  # This is the logged-in staff user
 
     supervisor_name = models.CharField(max_length=100)
     supervisor_date = models.DateField()
