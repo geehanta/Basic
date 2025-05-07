@@ -161,7 +161,7 @@
 
         $('#view_files').click(function(e) {
             e.preventDefault(); // Prevent default behavior if it's a link
-             window.location.href = '{% url "training_folder" %}';
+             window.location.href = '{% url "upload_files" %}';
         });
         $('.edit-data').click(function() {
             uni_modal('<i class="fa fa-edit"></i> Edit', '{% url "manage-post" %}/' + $(this).attr('data-id'), 'modal-md')

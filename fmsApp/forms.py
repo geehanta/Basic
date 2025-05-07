@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm, UserChangeForm
-
 from django.contrib.auth.models import User
 from .models import Post
 from .models import TrainingRecord
@@ -102,7 +101,7 @@ class SavePost(forms.ModelForm):
 class TrainingRecordStaffForm(forms.ModelForm):
     class Meta:
         model = TrainingRecord
-        exclude = ['employee', 'qa_review_date', 'qa_printed_name', 'qa_signature', 'date_reviewed']
+        exclude = ['employee', 'qa_review_date', 'qa_printed_name', 'qa_signature', 'date_reviewed','created_at', 'updated_at']
 
         widgets = {
             'supervisor_date': forms.DateInput(attrs={'type': 'date'}),

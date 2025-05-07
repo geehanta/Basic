@@ -1,4 +1,4 @@
-
+{% load user_tags %}
 <style>
   /* Google Fonts Import Link */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -289,9 +289,9 @@
   
   <ul class="nav-links">
     <li>
-      <a href="{% url 'portal' %}"><i class='bx bx-grid-alt' ></i></a>
+      <a href="{% url 'studies_dashboard' %}"><i class='bx bx-grid-alt' ></i></a>
       <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'portal' %}">Study Overview</a></li>
+        <li><a class="link_name" href="{% url 'studies_dashboard' %}">Studies Overview</a></li>
       </ul>
     </li>
     <li>
@@ -301,14 +301,7 @@
         <li><a class="link_name" href="{% url 'calendar' %}">Calendar</a></li>
       </ul>
     </li>
-    <li>
-      <a href="{% url 'reports' %}">
-        <i class='bx bx-line-chart'></i>
-      </a>
-      <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'reports' %}">Reports</a></li>
-      </ul>
-    </li>
+   
     <li class="active">
       <div class="iocn-link">
         <a href="#">
@@ -318,14 +311,24 @@
       </div>
       <ul class="sub-menu">
         <li><a class="link_name" href="#">Training Folders</a></li>
-        {% if user.id %}
-        <li><a href="{% url 'new_training' %}">Add record</a></li>
-        <li><a href="{% url 'posts-page' %}">Upload </a></li>
-        <li><a href="{% url 'training_folder' %}">My files</a></li>
+        {% if user.is_authenticated %}
+            {% if user|in_group:"staff" %}
+                <li><a href="{% url 'enter_training_record' %}">Add record</a></li>
+                <li><a href="{% url 'upload_files' %}">Upload Files</a></li>
+                <li><a href="{% url 'uploaded_files' %}">My files</a></li>
+            {% elif user|in_group:"reviewer" %}
+                <li><a href="{% url 'review_training_records' %}">Review records</a></li>
+                <li><a href="{% url 'reviewer_dashboard' %}">All Uploads</a></li>
+            {% endif %}
         {% endif %}
-        {% if reviewer.id %}
-        <li><a href="{% url 'reviewer_dashboard' %}">All files</a></li>
-        {% endif %} 
+    </ul>
+    </li>
+    <li>
+      <a href="{% url 'reports' %}">
+        <i class='bx bx-line-chart'></i>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="{% url 'reports' %}">Reports</a></li>
       </ul>
     </li>
     <li>
