@@ -1,5 +1,5 @@
 {% load customfilter %}
-<div class="container-fluid">
+<div class="container-fluid"style>
     <form action="{% url 'save-post' %}" id="post-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ post.id }}">
