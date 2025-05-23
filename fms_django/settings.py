@@ -85,18 +85,34 @@ WSGI_APPLICATION = 'fms_django.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
 load_dotenv()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_USER_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'ENGINE': 'mssql',
+        'NAME': os.getenv('DB_NAME'),           # still 'fms'
+        'USER': os.getenv('DB_USER'),           # still 'postgres'
+        'PASSWORD': os.getenv('DB_USER_PASSWORD'),  # still 'admin123'
+        'HOST': os.getenv('DB_HOST'),           # still 'localhost'
+        'PORT': os.getenv('DB_PORT'),           # now 1433
+
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'Trusted_connection': 'yes',
+        },
     }
 }
+# load_dotenv()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_USER_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#     }
+# }
 
 
 # Password validation

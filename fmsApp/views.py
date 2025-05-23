@@ -212,6 +212,7 @@ def training_record_review(request, record_id):
     if not request.user.groups.filter(name='reviewer').exists():
         messages.error(request, "Access denied. Reviewer permission required.")
         return redirect('unauthorized')
+    
 
     record = get_object_or_404(TrainingRecord, id=record_id)
 

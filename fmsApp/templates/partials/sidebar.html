@@ -317,7 +317,9 @@
                 <li><a href="{% url 'upload_files' %}">Upload Files</a></li>
                 <li><a href="{% url 'uploaded_files' %}">My files</a></li>
             {% elif user|in_group:"reviewer" %}
-                <li><a href="{% url 'review_training_records' %}">Review records</a></li>
+                {% if record and record.id %}
+                <li> <a href="{% url 'review_training_records' record.id %}">Review</a></li>
+                {% endif %}
                 <li><a href="{% url 'reviewer_dashboard' %}">All Uploads</a></li>
             {% endif %}
         {% endif %}
