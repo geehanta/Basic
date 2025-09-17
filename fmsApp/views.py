@@ -88,7 +88,7 @@ def registerUser(request):
             pwd = form.cleaned_data.get('password1')
             loginUser = authenticate(username= username, password = pwd)
             login(request, loginUser)
-            return redirect('home-page')
+            return redirect('home')
         else:
             context['reg_form'] = form
 

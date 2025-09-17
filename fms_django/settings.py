@@ -90,33 +90,16 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': os.getenv('DB_NAME'),           # still 'fms'
-        'USER': os.getenv('DB_USER'),           # still 'postgres'
-        'PASSWORD': os.getenv('DB_USER_PASSWORD'),  # still 'admin123'
-        'HOST': os.getenv('DB_HOST'),           # still 'localhost'
-        'PORT': os.getenv('DB_PORT'),           # now 1433
-
+        'NAME': os.getenv('DB_NAME', 'fms'),
+        'USER': os.getenv('DB_USER', 'sa'),
+        'PASSWORD': os.getenv('DB_USER_PASSWORD', 'Admin123admin'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '1433'),
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
-            'Trusted_connection': 'yes',
         },
     }
 }
-# load_dotenv()
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_USER_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-#     }
-# }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
