@@ -295,88 +295,11 @@
       </ul>
     </li>
     <li>
-      <a href="{% url 'calendar' %}">
-        <i class='bx bx-calendar' ></i> </a>
+      <a href="{% url 'review_document' %}"><i class='bx bx-file-alt' ></i></a>
       <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'calendar' %}">Calendar</a></li>
+        <li><a class="link_name" href="{% url 'review_document' %}">Training Folder</a></li>
       </ul>
     </li>
-   
-    <li class="active">
-      <div class="iocn-link">
-        <a href="#">
-          <i class='bx bx-book-alt' ></i>
-        </a>
-        <i class='bx bxs-chevron-down arrow' ></i>
-      </div>
-      <ul class="sub-menu">
-        <li><a class="link_name" href="#">Training Folders</a></li>
-        {% if user.is_authenticated %}
-            {% if user|in_group:"staff" %}
-                <li><a href="{% url 'enter_training_record' %}">Add record</a></li>
-                <li><a href="{% url 'upload_files' %}">Upload Files</a></li>
-                <li><a href="{% url 'uploaded_files' %}">My files</a></li>
-            {% elif user|in_group:"reviewer" %}
-                {% if record and record.id %}
-                <li> <a href="{% url 'review_training_records' record.id %}">Review</a></li>
-                {% endif %}
-                <li><a href="{% url 'reviewer_dashboard' %}">All Uploads</a></li>
-            {% endif %}
-        {% endif %}
-    </ul>
-    </li>
-    <li>
-      <a href="{% url 'reports' %}">
-        <i class='bx bx-line-chart'></i>
-      </a>
-      <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'reports' %}">Reports</a></li>
-      </ul>
-    </li>
-    <li>
-      <div class="iocn-link">
-        <a href="#">
-          <i class='bx bx-collection' ></i>
-          <span class="link_name">Posts</span>
-        </a>
-        <i class='bx bxs-chevron-down arrow' ></i>
-      </div>
-      <ul class="sub-menu">
-        <li><a class="link_name" href="#">Inventories</a></li>
-        <li><a href="{% url 'inventory' %}">Reagent inventory</a></li>
-        {% if user.id %}
-        <li><a href="{% url 'inventory' %}">Supplies inventory</a></li>{% endif %}
-      </ul>
-    </li>  
-    <li>
-      <div class="iocn-link">
-        <a href="#">
-          <i class='bx bx-plug' ></i>
-        </a>
-        <i class='bx bxs-chevron-down arrow' ></i>
-      </div>
-      <ul class="sub-menu">
-        <li><a class="link_name" href="#">Freezers</a></li>
-        <li><a href="#">Sample page</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="{% url 'tools' %}">
-        <i class='bx bx-plug' ></i> </a>
-      <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'tools' %}">Tools</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#">
-        <i class='bx bx-cog' ></i>
-        <span class="link_name">Setting</span>
-      </a>
-      <ul class="sub-menu blank">
-        <li><a class="link_name" href="#">Configurations</a></li>
-      </ul>
-    </li>
-    <li>
       <a href="#">
         <i class='bx bx-question' ></i>
         <span class="link_name">FAQ</span>
@@ -386,6 +309,7 @@
       </ul>
     </li>
     <li>
+  </ul>
   <div class="profile-details">
     <div class="profile-content">
       <img src="https://gravatar.com/avatar/f57bddebd1edf91412d5d68702530099" alt="profileImg">

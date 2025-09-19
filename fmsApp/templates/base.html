@@ -83,7 +83,7 @@
 <body>
     {% include 'partials/sidebar.html' %}
 
-    {% block TopNavigation %} {% include "TopNavigation.html" %} {% endblock TopNavigation %}
+    {% block TopNavigation %} {% include "partials/TopNavigation.html" %} {% endblock TopNavigation %}
     <main class="py-5">
         <div class="container mb-3">
             {% if messages %}
@@ -138,11 +138,7 @@
         </div>
     </div>
     
-     <!-- <footer class="bg-dark text-lg-start">
-        <div class="text-center p-2" style="background-color: #33372C;">
-            <a class="text-white" href="" target="_blank" style="text-decoration: none;"> © {% now 'Y' %} Copyright: BSL  Version.1.0.0</a>
-        </div> 
-    </footer> -->
+     
 </body>
 <script>
     // Loader Functions
