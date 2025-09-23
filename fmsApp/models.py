@@ -25,6 +25,8 @@ class Document(models.Model):
         ("pending", "Pending"),
         ("approved", "Approved"),
         ("rejected", "Rejected"),
+        ("expired", "Expired"),
+        ("invalid", "Invalid"),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     reviewer_feedback = models.TextField(blank=True)

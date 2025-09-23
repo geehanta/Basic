@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load customfilter %}
+
+{% block pageContent %}
+<div id="app-container" class="container-fluid main-container">
+
+    <!-- ================= HEADER ================= -->
+    <div class="header-section d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="m-0">
+                {% if role == "reviewer" %}
+                    Training Documents Review Section
+                {% elif role == "staff" %}
+                    Training Documents Upload Section
+                {% else %}
+                    No Access
+                {% endif %}
+            </h2>
+            <span class="version-tag">VERSION .05 FEB 2025</span>
+        </div>
+        <div>
+            {% if role == "reviewer" %}
+                <button id="review-document-btn" class="btn btn-primary reviewer-only" 
+                        data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    <i class="fas fa-check-circle me-1"></i> Review Document
+                </button>
+            {% elif role == "staff" %}
+                <button id="upload-document-btn" class="btn btn-success upload-btn" 
+                        data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    <i class="fas fa-plus me-1"></i> Upload Document
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ================= BADGE BAR ================= -->
+    <div class="bg-light p-2 border-bottom">
+        <span class="badge bg-secondary">Total Documents: {{ documents|length }}</span>
+    </div>
+
+    <!-- ================= TABS ================= -->
+    <ul class="nav nav-tabs" id="documentTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="section1-tab" data-bs-toggle="tab" 
+                    data-bs-target="#section1" type="button">
+                Section 1: Verification of Job Qualifications
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="section2-tab" data-bs-toggle="tab" 
+                    data-bs-target="#section2" type="button">
+                Section 2: Department Orientation Records
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="section3-tab" data-bs-toggle="tab" 
+                    data-bs-target="#section3" type="button">
+                Section 3: Education, Training, Competency
+            </button>
+        </li>
+    </ul>
+
+    <!-- ================= TAB CONTENT ================= -->
+    <div class="tab-content mt-3" id="documentTabsContent">
+
+        <!-- SECTION 1 -->
+        <div class="tab-pane fade show active" id="section1">
+            <div class="row">
+                <!-- Left checklist -->
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header section-header">Required Documents</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                Privacy Act Statement <span class="badge bg-success">Verified</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Curriculum Vitae (CV) <span class="badge bg-success">Verified</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Job Description <span class="badge bg-success">Verified</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Additional Duty Appointment Orders <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                CLIP Testing Qualification Form <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                College/Technical Diploma <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Registration/Board Certification <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Other Personnel Documentation <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right table -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header section-header">Uploaded Files</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="documentTable" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Type</th>
+                                            <th>Uploaded By</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for doc in documents %}
+                                        <tr>
+                                            <td>{{ doc.id }}</td>
+                                            <td>{{ doc.doc_type }}</td>
+                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td>{{ doc.uploaded_at|date:"Y-m-d H:i" }}</td>
+                                            <td><span class="badge bg-{{ doc.status|lower }}">{{ doc.status }}</span></td>
+                                            <td>
+                                                {% if role == "reviewer" %}
+                                                <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">
+                                                    Preview
+                                                </a>
+                                                    <button class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reviewModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}"
+                                                            data-status="{{ doc.status }}"
+                                                            data-feedback="{{ doc.reviewer_feedback }}">
+                                                        Review
+                                                    </button>
+                                                {% elif role == "staff" %}
+                                                    <button class="btn btn-sm btn-warning"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#uploadModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-section="{{ doc.section }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}">
+                                                        Update
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-btn"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-docname="{{ doc.doc_type }}">
+                                                        Delete
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                            <tr><td colspan="6" class="text-center">No documents yet.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2 -->
+        <div class="tab-pane fade" id="section2">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header section-header">Required Documents</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                Department Mission <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Orientation Checklist <span class="badge bg-success">Verified</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Initial SOP Training Checklist <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Competency Test Results <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Other Orientation Docs <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header section-header">Uploaded Files</div>
+                        <div class="card-body">
+                            <p class="text-muted text-center">No documents uploaded in this section.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3 -->
+        <div class="tab-pane fade" id="section3">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header section-header">Required Documents</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                Short Course Docs <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Routine Competency Records <span class="badge bg-danger">Rejected</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Annual SOP Training Docs <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Weekly Training Docs <span class="badge bg-success">Verified</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                In-service Training Docs <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Publications <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                Other Training Docs <span class="badge bg-warning text-dark">Pending</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header section-header">Uploaded Files</div>
+                        <div class="card-body">
+                            <p class="text-muted text-center">No documents uploaded in this section.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= UPLOAD MODAL (Staff) ================= -->
+{% if role == "staff" %}
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form id="uploadForm" class="modal-content" method="post" enctype="multipart/form-data"
+          action="{% url 'upload_document' %}">
+      {% csrf_token %}
+      <input type="hidden" name="doc_id" id="uploadDocId">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Upload Document</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="section" class="form-label">Section</label>
+          <select class="form-select" id="section" name="section" required>
+            <option value="" disabled selected>Select a section</option>
+            {% for value, label in documents.model.SECTION_CHOICES %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="documentType" class="form-label">Document Type</label>
+          <select class="form-select" id="documentType" name="doc_type" required disabled>
+            <option value="" disabled selected>Select a section first</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="description"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="file" class="form-label">File</label>
+          <input type="file" class="form-control" id="file" name="file" accept=".pdf,.docx,.xlsx">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" id="saveDocumentBtn" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+
+<!-- ================= REVIEW MODAL (Reviewer) ================= -->
+{% if role == "reviewer" %}
+<div class="modal fade" id="reviewModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form id="reviewForm" class="modal-content" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="doc_id" id="reviewDocId">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Review Document</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label">Document</label>
+            <p id="reviewDocumentName" class="form-control-plaintext"></p>
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" id="status" name="status" required>
+            {% for value, label in documents.model.STATUS_CHOICES %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="reviewer_feedback" class="form-label">Reviewer Feedback</label>
+          <textarea class="form-control" id="reviewer_feedback" name="reviewer_feedback"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock pageContent %}
+
+{% block ScriptBlock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Bootstrap toasts
+    document.querySelectorAll('.toast').forEach(toastEl => {
+        new bootstrap.Toast(toastEl, { delay: 4000 }).show();
+    });
+});
+
+// Delete confirm
+$(document).on('click', '.delete-btn', function () {
+    const docId = $(this).data('doc');
+    const docName = $(this).data('docname');
+    if (confirm(`Are you sure you want to delete "${docName}"?`)) {
+        window.location.href = `/documents/delete/${docId}/`;
+    }
+});
+
+// Available document types per section
+const documentTypes = {
+    section1: [
+        "Privacy Act Statement",
+        "Curriculum Vitae (CV)",
+        "Job Description",
+        "Additional Duty Appointment Orders",
+        "CLIP Testing Qualification Form",
+        "College or Technical School Diploma",
+        "Registration or Board Certification",
+        "Other Personnel Documentation"
+    ],
+    section2: [
+        "Statement of Department Mission",
+        "Orientation Checklist",
+        "Initial SOP Training Checklist",
+        "Competency Test Results",
+        "Other Orientation Documentation"
+    ],
+    section3: [
+        "Short Course Documentation",
+        "Routine Competency Testing Records",
+        "Annual SOP Training Documentation",
+        "Weekly Training Documentation",
+        "In-service Training Documentation",
+        "Publications",
+        "Other Training Documentation"
+    ]
+};
+
+// Populate document type dropdown dynamically
+$('#section').on('change', function() {
+    const sectionId = $(this).val();
+    const $documentType = $('#documentType');
+    $documentType.empty().append('<option value="" disabled selected>Select a document type</option>');
+    if (documentTypes[sectionId]) {
+        documentTypes[sectionId].forEach(type => {
+            $documentType.append(`<option value="${type}">${type}</option>`);
+        });
+        $documentType.prop('disabled', false);
+    } else {
+        $documentType.prop('disabled', true);
+    }
+});
+
+// Upload modal: reset or load update
+$('#uploadModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const docId = button.data('doc');
+
+    if (docId) {
+        $('#uploadDocId').val(docId);
+        $('#section').val(button.data('section')).trigger('change');  // ensure dropdown refresh
+        $('#documentType').val(button.data('doctype'));
+        $('#description').val(button.data('description'));
+        $('.modal-title', this).text('Update Document');
+        $('#saveDocumentBtn').text('Update')
+            .removeClass('btn-primary').addClass('btn-warning');
+    } else {
+        $('#uploadForm')[0].reset();
+        $('#uploadDocId').val('');
+        $('#documentType').empty().append('<option value="" disabled selected>Select a section first</option>').prop('disabled', true);
+        $('.modal-title', this).text('Upload Document');
+        $('#saveDocumentBtn').text('Upload')
+            .removeClass('btn-warning').addClass('btn-primary');
+    }
+});
+// Reviewer modal: set action + values
+$('#reviewModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const docId = button.data('doc');
+    const docName = button.data('doctype');
+    const feedback = button.data('feedback');
+    const status = button.data('status');
+
+    // set hidden doc_id
+    $('#reviewDocId').val(docId);
+
+    // update form action dynamically
+    const actionTemplate = "{% url 'review_document_submit' 0 %}";
+    const newAction = actionTemplate.replace("/0/", "/" + docId + "/");
+    $('#reviewForm').attr('action', newAction);
+
+    // preload fields
+    $('#status').val(status);
+    $('#reviewer_feedback').val(feedback);
+});
+$('#reviewModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const docId = button.data('doc');
+    const docName = button.data('doctype');
+    const feedback = button.data('feedback');
+    const status = button.data('status');
+
+    $('#reviewDocId').val(docId);
+
+    const actionTemplate = "{% url 'review_document_submit' 0 %}";
+    const newAction = actionTemplate.replace("/0/", "/" + docId + "/");
+    $('#reviewForm').attr('action', newAction);
+
+    $('#status').val(status);
+    $('#reviewer_feedback').val(feedback);
+    $('#reviewDocumentName').text(docName);  // ✅ show document name
+});
+</script>
+{% endblock ScriptBlock %}

@@ -149,57 +149,121 @@ def dashboard(request):
     })
 
 
+
+#### Document Upload/Update View ###
+@login_required
+def upload_document(request):
+    if request.method == "POST":
+        doc_id = request.POST.get("doc_id")
+        section = request.POST.get("section")
+        doc_type = request.POST.get("doc_type")
+        description = request.POST.get("description")
+        file = request.FILES.get("file")
+
+        if doc_id:  # update
+            doc = get_object_or_404(Document, pk=doc_id, uploaded_by=request.user)
+            doc.section = section
+            doc.doc_type = doc_type
+            doc.description = description
+            if file:
+                doc.file = file
+            doc.save()
+            messages.success(request, f"Document '{doc.doc_type}' updated successfully.")
+        else:  # new upload
+            if file:
+                Document.objects.create(
+                    section=section,
+                    doc_type=doc_type,
+                    description=description,
+                    file=file,
+                    uploaded_by=request.user,
+                    status="pending"
+                )
+                messages.success(request, "Document uploaded successfully and is pending review.")
+            else:
+                messages.error(request, "Please select a file to upload.")
+
+        return redirect("review_document")
+
+    return redirect("review_document")
+
+@login_required
+def delete_document(request, doc_id):
+    doc = get_object_or_404(Document, pk=doc_id, uploaded_by=request.user)
+    doc_name = doc.doc_type
+
+    doc.delete()
+    messages.success(request, f"Document '{doc_name}' deleted successfully.")
+    return redirect("review_document")
+
+#### Document Review View ###
 @login_required
 def review_document(request):
     user = request.user
 
     if user.groups.filter(name="reviewer").exists():
-        documents = Document.objects.all()
+        # reviewers see all files, grouped by user
+        documents = Document.objects.select_related("uploaded_by").all()
         role = "reviewer"
+
     elif user.groups.filter(name="staff").exists():
+        # staff only see their own files
         documents = Document.objects.filter(uploaded_by=user)
         role = "staff"
+
+        # 🔔 alert staff if any of their docs have been reviewed
+        reviewed = documents.exclude(status="pending").exists()
+        if reviewed:
+            messages.info(
+                request,
+                "You have reviewed files. Please check their status!"
+            )
+
     else:
         documents = Document.objects.none()
         role = "none"
 
-    return render(request, "training_docs/review_document.html", {
-        "documents": documents,
-        "role": role,
-    })
+    return render(
+        request,
+        "training_docs/review.html",
+        {"documents": documents, "role": role},
+    )
+
+
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name="staff").exists())
-def update_document(request, doc_id):
-    doc = get_object_or_404(Document, id=doc_id, uploaded_by=request.user)
+def review_document_submit(request, pk):
+    doc = get_object_or_404(Document, pk=pk)
 
     if request.method == "POST":
-        form = DocumentUploadForm(request.POST, request.FILES, instance=doc)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Document updated successfully.")
+        verdict = request.POST.get("status")
+        feedback = request.POST.get("reviewer_feedback")
+
+        # Default safeguard
+        if verdict not in dict(Document.STATUS_CHOICES).keys():
+            messages.error(request, "Invalid status.")
             return redirect("review_document")
-    else:
-        form = DocumentUploadForm(instance=doc)
 
-    return render(request, "training_docs/update_document.html", {
-        "form": form,
-        "doc": doc,
-    })
+        # Update
+        doc.status = verdict
+        doc.reviewer_feedback = feedback or ""
+        doc.save()
 
+        # Feedback for reviewer
+        if verdict == "approved":
+            messages.success(request, f"✅ '{doc.doc_type}' approved.")
+        elif verdict == "rejected":
+            messages.error(request, f"❌ '{doc.doc_type}' rejected.")
+        elif verdict == "expired":
+            messages.warning(request, f"⚠️ '{doc.doc_type}' marked expired.")
+        elif verdict == "invalid":
+            messages.warning(request, f"⚠️ '{doc.doc_type}' marked invalid.")
+        else:
+            messages.info(request, f"⌛ '{doc.doc_type}' set to pending.")
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name="staff").exists())
-def delete_document(request, doc_id):
-    doc = get_object_or_404(Document, id=doc_id, uploaded_by=request.user)
-    if request.method == "POST":
-        doc.delete()
-        messages.success(request, "Document deleted successfully.")
         return redirect("review_document")
 
-    return render(request, "training_docs/confirm_delete.html", {
-        "doc": doc,
-    })
-
+    messages.error(request, "Invalid request.")
+    return redirect("review_document")
 
 
 

@@ -20,8 +20,13 @@ urlpatterns = [
     ## Application Views ##
     path('', views.home, name='home'),  # Home page
     path('studies-dashboard/', views.studies_dashboard, name='studies_dashboard'),
-    path('documents/', views.review_document, name='review_document'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path("documents/update/<int:doc_id>/", views.update_document, name="update_document"),
-    path("documents/delete/<int:doc_id>/", views.delete_document, name="delete_document"),
+
+    ## Document Management ##
+    path('documents/', views.review_document, name='review_document'),
+    path("documents/upload/", views.upload_document, name="upload_document"),
+    path('documents/delete/<int:doc_id>/', views.delete_document, name='delete_document'),
+    path("documents/review/<int:pk>/", views.review_document_submit, name="review_document_submit"),
+    
+
 ]
