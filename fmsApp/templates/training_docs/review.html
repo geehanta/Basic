@@ -9,27 +9,30 @@
     <!-- ================= HEADER ================= -->
     <div class="header-section d-flex justify-content-between align-items-center">
         <div>
-            <h2 class="m-0">
+            <h3 class="m-0">
                 {% if role == "reviewer" %}
-                    Training Documents Review Section
+                    Training Documents Review 
                 {% elif role == "staff" %}
-                    Training Documents Upload Section
+                    Training Documents Upload 
                 {% else %}
                     No Access
                 {% endif %}
-            </h2>
-            <span class="version-tag">VERSION .05 FEB 2025</span>
+            </h3>
+            <span class="version-tag" style="font-size: 0.7rem; font-weight: 500; color: #6c757d;">
+                VERSION .05 FEB 2025
+            </span>
+
         </div>
         <div>
             {% if role == "reviewer" %}
                 <button id="review-document-btn" class="btn btn-primary reviewer-only" 
                         data-bs-toggle="modal" data-bs-target="#reviewModal">
-                    <i class="fas fa-check-circle me-1"></i> Review Document
+                    <i class="fas fa-check-circle me-1"></i> Review Documents
                 </button>
             {% elif role == "staff" %}
                 <button id="upload-document-btn" class="btn btn-success upload-btn" 
                         data-bs-toggle="modal" data-bs-target="#uploadModal">
-                    <i class="fas fa-plus me-1"></i> Upload Document
+                    <i class="fas fa-plus me-1"></i> Upload Documents
                 </button>
             {% endif %}
         </div>
@@ -37,7 +40,7 @@
 
     <!-- ================= BADGE BAR ================= -->
     <div class="bg-light p-2 border-bottom">
-        <span class="badge bg-secondary">Total Documents: {{ documents|length }}</span>
+        <span class="badge bg-secondary">Total Files Uploaded: {{ documents|length }}</span>
     </div>
 
     <!-- ================= TABS ================= -->
@@ -104,7 +107,7 @@
                 <!-- Right table -->
                 <div class="col-lg-8">
                     <div class="card">
-                        <div class="card-header section-header">Uploaded Files</div>
+                        <div class="card-header section-header">Documents Review Status</div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table id="documentTable" class="table table-bordered table-hover">
@@ -125,7 +128,11 @@
                                             <td>{{ doc.doc_type }}</td>
                                             <td>{{ doc.uploaded_by }}</td>
                                             <td>{{ doc.uploaded_at|date:"Y-m-d H:i" }}</td>
-                                            <td><span class="badge bg-{{ doc.status|lower }}">{{ doc.status }}</span></td>
+                                            <td>
+                                                <span class="doc-status {{ doc.status|lower }}">
+                                                    {{ doc.status }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 {% if role == "reviewer" %}
                                                 <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">
