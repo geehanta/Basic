@@ -250,15 +250,15 @@ def review_document_submit(request, pk):
 
         # Feedback for reviewer
         if verdict == "approved":
-            messages.success(request, f"✅ '{doc.doc_type}' approved.")
+            messages.success(request, f"Congratulations '{doc.doc_type}' approved.")
         elif verdict == "rejected":
-            messages.error(request, f"❌ '{doc.doc_type}' rejected.")
+            messages.error(request, f"Oops '{doc.doc_type}' rejected.")
         elif verdict == "expired":
-            messages.warning(request, f"⚠️ '{doc.doc_type}' marked expired.")
+            messages.warning(request, f"⚠️ Warning '{doc.doc_type}' marked expired.")
         elif verdict == "invalid":
-            messages.warning(request, f"⚠️ '{doc.doc_type}' marked invalid.")
+            messages.warning(request, f"⚠️ Warning '{doc.doc_type}' marked invalid.")
         else:
-            messages.info(request, f"⌛ '{doc.doc_type}' set to pending.")
+            messages.info(request, f"⌛ '{doc.doc_type}' is pending review.")
 
         return redirect("review_document")
 
