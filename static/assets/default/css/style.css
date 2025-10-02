@@ -114,20 +114,48 @@ span.select2-selection.select2-selection--single { border-radius: 0; }
 
 /* === Training Docs Specific Styles === */
 .main-container {
-    background: #b5b6b8;
+    background: #FAF8F1;
     padding: 25px;
     border-radius: 5px;
+    max-width: 95% !important;
+}
+/* Prevent action buttons from stacking */
+td.action-buttons {
+    white-space: nowrap;
 }
 
-/* Section headers */
+/* Slight gap between buttons */
+td.action-buttons .btn {
+    margin-right: 4px;
+}
+
+/* Make nav tabs more visible */
+.custom-tabs .nav-link {
+    color: #343a40; /* dark text */
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa; 
+    margin-right: 5px;
+    border-radius: 0.3rem 0.3rem 0 0;
+}
+.custom-tabs .nav-link.active {
+    background-color: rgb(2, 88, 88) !important;
+    color: #fff !important;
+    border-color: #fff;
+}
+
+.custom-tabs .nav-link:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+/* Section headers styling */
 .section-header {
-    background: #343a40;
-    color: #fff;
     font-weight: 600;
-    padding: 10px;
     font-size: 0.95rem;
+    background: #f1f3f5;
+    color: #212529;
+    border-bottom: 2px solid #dee2e6;
 }
-
 /* Checklist styling */
 .doc-list {
     list-style: none;
@@ -141,7 +169,22 @@ span.select2-selection.select2-selection--single { border-radius: 0; }
     padding: 6px 10px;
     border-bottom: 1px solid #e9ecef;
 }
+/* Style list items in Required Documents cards */
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;   /* keep badge vertically centered */
+    min-height: 3rem;      /* ensures enough vertical space if text wraps */
+    line-height: 1.4;      /* better readability */
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
 
+/* Prevent badge from stretching when text wraps */
+.list-group-item .badge {
+    flex-shrink: 0;         /* badge stays same size */
+    margin-left: 10px;      /* little spacing from text */
+}
 /* Status badges */
 .status-badge {
     font-size: 0.75rem;

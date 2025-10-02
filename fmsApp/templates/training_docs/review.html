@@ -43,23 +43,23 @@
     </div>
 
     <!-- ================= TABS ================= -->
-    <ul class="nav nav-tabs" id="documentTabs" role="tablist">
+    <ul class="nav nav-tabs custom-tabs" id="documentTabs" role="tablist">
         <li class="nav-item">
             <button class="nav-link active" id="section1-tab" data-bs-toggle="tab" 
                     data-bs-target="#section1" type="button">
-                Section 1: Verification of Job Qualifications
+                Section 1
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" id="section2-tab" data-bs-toggle="tab" 
                     data-bs-target="#section2" type="button">
-                Section 2: Department Orientation Records
+                Section 2
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" id="section3-tab" data-bs-toggle="tab" 
                     data-bs-target="#section3" type="button">
-                Section 3: Education, Training, Competency
+                Section 3
             </button>
         </li>
     </ul>
@@ -73,7 +73,7 @@
                 <!-- Left checklist -->
                 <div class="col-lg-4">
                     <div class="card mb-3">
-                        <div class="card-header section-header">Required Documents</div>
+                        <div class="card-header section-header">Verification of Job Qualifications</div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between">
                                 1. Privacy Act Statement <span class="badge bg-warning">Priority</span>
@@ -108,11 +108,10 @@
                     <div class="card">
                         <div class="card-header section-header">Documents Review Status</div>
                         <div class="card-body">
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                                 <table id="documentTable" class="table table-bordered table-hover table-striped table-sm">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
                                             <th>Type</th>
                                             <th>Uploaded By</th>
                                             <th>Date</th>
@@ -123,7 +122,6 @@
                                     <tbody>
                                         {% for doc in documents %}
                                         <tr>
-                                            <td>{{ doc.id }}</td>
                                             <td>{{ doc.doc_type }}</td>
                                             <td>{{ doc.uploaded_by }}</td>
                                             <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
@@ -132,7 +130,7 @@
                                                     {{ doc.status }}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td  class="action-buttons">
                                                 
                                                 {% if "reviewer" in roles %}
                                                     <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
@@ -149,6 +147,7 @@
                                                 {% endif %}
 
                                                 {% if "staff" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
                                                     <button class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#uploadModal"
@@ -167,7 +166,7 @@
                                             </td>
                                         </tr>
                                         {% empty %}
-                                            <tr><td colspan="6" class="text-center">No documents yet.</td></tr>
+                                            <tr><td colspan="6" class="text-center">No documents in this section yet.</td></tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -183,7 +182,7 @@
             <div class="row">
                 <div class="col-lg-4">
                     <div class="card mb-3">
-                        <div class="card-header section-header">Required Documents</div>
+                        <div class="card-header section-header">Department orientation Records</div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between">
                                 1. Statement of Department Mission <span class="badge bg-dark">Required</span>
@@ -219,7 +218,7 @@
             <div class="row">
                 <div class="col-lg-4">
                     <div class="card mb-3">
-                        <div class="card-header section-header">Required Documents</div>
+                        <div class="card-header section-header">Education, Training, Competency</div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between">
                                 1. Short Course Documentation <span class="badge bg-dark">Pending</span>
