@@ -286,26 +286,44 @@
 }
 </style>
 <div class="sidebar close">
-  
   <ul class="nav-links">
+    <!-- Studies Overview (always visible) -->
     <li>
-      <a href="{% url 'studies_dashboard' %}"><i class='bx bx-grid-alt' ></i></a>
+      <a href="{% url 'studies_dashboard' %}">
+        <i class='bx bx-grid-alt'></i>
+      </a>
       <ul class="sub-menu blank">
         <li><a class="link_name" href="{% url 'studies_dashboard' %}">Studies Overview</a></li>
       </ul>
     </li>
+
+    <!-- Upload (Staff only) -->
+    {% if "staff" in roles %}
     <li>
-      <a href="{% url 'review_document' %}"><i class='bx bx-folder' ></i></a>
+      <a href="{% url 'upload_document' %}">
+        <i class='bx bx-upload'></i>
+      </a>
       <ul class="sub-menu blank">
-        <li><a class="link_name" href="{% url 'review_document' %}">Training Folder</a></li>
+        <li><a class="link_name" href="{% url 'upload_document' %}">Upload Documents</a></li>
       </ul>
-    <!-- </li>
-      
+    </li>
+    {% endif %}
+
+    <!-- Review (Reviewer only) -->
+    {% if "reviewer" in roles %}
+    <li>
+      <a href="{% url 'review_document' %}">
+        <i class='bx bx-folder'></i>
+      </a>
       <ul class="sub-menu blank">
-        <li><a class="link_name" href="#">FAQ</a></li>
+        <li><a class="link_name" href="{% url 'review_document' %}">Review Documents</a></li>
       </ul>
-    </li> -->
+    </li>
+    {% endif %}
+
   </ul>
+
+  <!-- Profile footer -->
   <div class="profile-details">
     <div class="profile-content">
       <img src="https://gravatar.com/avatar/f57bddebd1edf91412d5d68702530099" alt="profileImg">
@@ -314,28 +332,28 @@
       <div class="profile_name">BSL</div>
       <div class="job">System</div>
     </div>
-    <i class='bx bx-log-out' ></i>
+    <i class='bx bx-log-out'></i>
   </div>
-</li>
-</ul>
 </div>
+
 <section class="home-section">
   <div class="home-content">
-    <i class='bx bx-menu' ></i>
+    <i class='bx bx-menu'></i>
     <span class="text">Drop Down Sidebar</span>
   </div>
 </section>
+
 <script>
   let arrow = document.querySelectorAll(".arrow");
   for (var i = 0; i < arrow.length; i++) {
     arrow[i].addEventListener("click", (e)=>{
-   let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
-   arrowParent.classList.toggle("showMenu");
+      let arrowParent = e.target.parentElement.parentElement; // selecting main parent of arrow
+      arrowParent.classList.toggle("showMenu");
     });
   }
+
   let sidebar = document.querySelector(".sidebar");
   let sidebarBtn = document.querySelector(".bx-menu");
-  console.log(sidebarBtn);
   sidebarBtn.addEventListener("click", ()=>{
     sidebar.classList.toggle("close");
   });

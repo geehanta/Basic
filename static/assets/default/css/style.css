@@ -73,7 +73,7 @@ body.loading {
 .lds-default div {
     position: absolute;
     width: 6px; height: 6px;
-    background: white;
+    background: teal;
     border-radius: 50%;
     animation: lds-default 1.2s linear infinite;
 }
@@ -114,9 +114,9 @@ span.select2-selection.select2-selection--single { border-radius: 0; }
 
 /* === Training Docs Specific Styles === */
 .main-container {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 6px;
+    background: #b5b6b8;
+    padding: 25px;
+    border-radius: 5px;
 }
 
 /* Section headers */

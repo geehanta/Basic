@@ -197,36 +197,66 @@ def delete_document(request, doc_id):
     return redirect("review_document")
 
 #### Document Review View ###
+# @login_required
+# def review_document(request):
+#     user = request.user
+
+#     if user.groups.filter(name="reviewer").exists():
+#         # reviewers see all files, grouped by user
+#         documents = Document.objects.select_related("uploaded_by").all()
+#         role = "reviewer"
+
+#     elif user.groups.filter(name="staff").exists():
+#         # staff only see their own files
+#         documents = Document.objects.filter(uploaded_by=user)
+#         role = "staff"
+
+#         # 🔔 alert staff if any of their docs have been reviewed
+#         reviewed = documents.exclude(status="pending").exists()
+#         if reviewed:
+#             messages.info(
+#                 request,
+#                 "You have reviewed files. Please check their status!"
+#             )
+
+#     else:
+#         documents = Document.objects.none()
+#         role = "none"
+
+#     return render(
+#         request,
+#         "training_docs/review.html",
+#         {"documents": documents, "role": role},
+#     )
 @login_required
 def review_document(request):
     user = request.user
+    documents = Document.objects.none()
+    roles = []
 
     if user.groups.filter(name="reviewer").exists():
-        # reviewers see all files, grouped by user
-        documents = Document.objects.select_related("uploaded_by").all()
-        role = "reviewer"
+        documents = documents | Document.objects.select_related("uploaded_by").all()
+        roles.append("reviewer")
 
-    elif user.groups.filter(name="staff").exists():
-        # staff only see their own files
-        documents = Document.objects.filter(uploaded_by=user)
-        role = "staff"
+    if user.groups.filter(name="staff").exists():
+        staff_docs = Document.objects.filter(uploaded_by=user)
+        documents = documents | staff_docs
+        roles.append("staff")
 
-        # 🔔 alert staff if any of their docs have been reviewed
-        reviewed = documents.exclude(status="pending").exists()
-        if reviewed:
+        # Notify staff if any of their docs have been reviewed
+        if staff_docs.exclude(status="pending").exists():
             messages.info(
                 request,
                 "You have reviewed files. Please check their status!"
             )
 
-    else:
-        documents = Document.objects.none()
-        role = "none"
+    if not roles:
+        roles.append("none")
 
     return render(
         request,
         "training_docs/review.html",
-        {"documents": documents, "role": role},
+        {"documents": documents.distinct(), "roles": roles},
     )
 
 

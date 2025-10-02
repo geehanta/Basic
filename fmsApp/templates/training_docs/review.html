@@ -5,32 +5,31 @@
 
 {% block pageContent %}
 <div id="app-container" class="container-fluid main-container">
-
     <!-- ================= HEADER ================= -->
     <div class="header-section d-flex justify-content-between align-items-center">
         <div>
             <h3 class="m-0">
-                {% if role == "reviewer" %}
-                    Training Documents Review 
-                {% elif role == "staff" %}
-                    Training Documents Upload 
+                {% if "reviewer" in roles and "staff" in roles %}
+                    Training Docs Review & Upload
+                {% elif "reviewer" in roles %}
+                    Training Docs Review
+                {% elif "staff" in roles %}
+                    Training Docs Upload
                 {% else %}
-                    No Access
+                    Unauthorized Access!
                 {% endif %}
             </h3>
-            <span class="version-tag" style="font-size: 0.7rem; font-weight: 500; color: #6c757d;">
-                VERSION .05 FEB 2025
-            </span>
-
+            <span class="version-tag" style="font-size: 0.7rem; font-weight: 500; color: #6c757d;">VERSION .05 FEB 2025</span>
         </div>
         <div>
-            {% if role == "reviewer" %}
-                <button id="review-document-btn" class="btn btn-primary reviewer-only" 
-                        data-bs-toggle="modal" data-bs-target="#reviewModal">
+            {% if "reviewer" in roles %}
+                <button id="review-document-btn" class="btn btn-primary reviewer-only"
+                        data-bs-toggle="modal" data-bs-target="#reviewModal" disabled>
                     <i class="fas fa-check-circle me-1"></i> Review Documents
                 </button>
-            {% elif role == "staff" %}
-                <button id="upload-document-btn" class="btn btn-success upload-btn" 
+            {% endif %}
+            {% if "staff" in roles %}
+                <button id="upload-document-btn" class="btn btn-success upload-btn"
                         data-bs-toggle="modal" data-bs-target="#uploadModal">
                     <i class="fas fa-plus me-1"></i> Upload Documents
                 </button>
@@ -134,10 +133,9 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                {% if role == "reviewer" %}
-                                                <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">
-                                                    Preview
-                                                </a>
+                                                
+                                                {% if "reviewer" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
                                                     <button class="btn btn-sm btn-primary"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#reviewModal"
@@ -148,7 +146,9 @@
                                                             data-feedback="{{ doc.reviewer_feedback }}">
                                                         Review
                                                     </button>
-                                                {% elif role == "staff" %}
+                                                {% endif %}
+
+                                                {% if "staff" in roles %}
                                                     <button class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#uploadModal"
@@ -260,7 +260,8 @@
 </div>
 
 <!-- ================= UPLOAD MODAL (Staff) ================= -->
-{% if role == "staff" %}
+
+{% if "staff" in roles %}
 <div class="modal fade" id="uploadModal" tabindex="-1">
   <div class="modal-dialog">
     <form id="uploadForm" class="modal-content" method="post" enctype="multipart/form-data"
@@ -313,7 +314,8 @@
 
 
 <!-- ================= REVIEW MODAL (Reviewer) ================= -->
-{% if role == "reviewer" %}
+
+{% if "reviewer" in roles %}
 <div class="modal fade" id="reviewModal" tabindex="-1">
   <div class="modal-dialog">
     <form id="reviewForm" class="modal-content" method="post">
@@ -365,14 +367,7 @@ document.addEventListener("DOMContentLoaded", function() {
         new bootstrap.Toast(toastEl, { delay: 4000 }).show();
     });
 });
-$(document).ready(function() {
-    $('#documentTable12').DataTable({
-        paging: false,         // disable pagination
-        scrollY: '300px',      // vertical scroll height
-        scrollCollapse: true   // collapse if fewer than 10 rows
-    });
-});
-// Delete confirm
+
 $(document).on('click', '.delete-btn', function () {
     const docId = $(this).data('doc');
     const docName = $(this).data('docname');
@@ -483,7 +478,7 @@ $('#reviewModal').on('show.bs.modal', function (event) {
 
     $('#status').val(status);
     $('#reviewer_feedback').val(feedback);
-    $('#reviewDocumentName').text(docName);  // ✅ show document name
+    $('#reviewDocumentName').text(docName);  //  show document name
 });
 </script>
 {% endblock ScriptBlock %}
