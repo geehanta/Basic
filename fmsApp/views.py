@@ -158,30 +158,31 @@ def upload_document(request):
         section = request.POST.get("section")
         doc_type = request.POST.get("doc_type")
         description = request.POST.get("description")
-        file = request.FILES.get("file")
+        files = request.FILES.getlist("file")  # <-- multiple files support
 
-        if doc_id:  # update
+        if doc_id:  # update (still one document at a time)
             doc = get_object_or_404(Document, pk=doc_id, uploaded_by=request.user)
             doc.section = section
             doc.doc_type = doc_type
             doc.description = description
-            if file:
-                doc.file = file
+            if files:
+                doc.file = files[0]  # only first file used for update
             doc.save()
             messages.success(request, f"Document '{doc.doc_type}' updated successfully.")
-        else:  # new upload
-            if file:
-                Document.objects.create(
-                    section=section,
-                    doc_type=doc_type,
-                    description=description,
-                    file=file,
-                    uploaded_by=request.user,
-                    status="pending"
-                )
-                messages.success(request, "Document uploaded successfully and is pending review.")
+        else:  # new upload (can be multiple)
+            if files:
+                for f in files:
+                    Document.objects.create(
+                        section=section,
+                        doc_type=doc_type,
+                        description=description,
+                        file=f,
+                        uploaded_by=request.user,
+                        status="pending"
+                    )
+                messages.success(request, f"{len(files)} document(s) uploaded successfully and are pending review.")
             else:
-                messages.error(request, "Please select a file to upload.")
+                messages.error(request, "Please select at least one file to upload.")
 
         return redirect("review_document")
 
@@ -196,38 +197,6 @@ def delete_document(request, doc_id):
     messages.success(request, f"Document '{doc_name}' deleted successfully.")
     return redirect("review_document")
 
-#### Document Review View ###
-# @login_required
-# def review_document(request):
-#     user = request.user
-
-#     if user.groups.filter(name="reviewer").exists():
-#         # reviewers see all files, grouped by user
-#         documents = Document.objects.select_related("uploaded_by").all()
-#         role = "reviewer"
-
-#     elif user.groups.filter(name="staff").exists():
-#         # staff only see their own files
-#         documents = Document.objects.filter(uploaded_by=user)
-#         role = "staff"
-
-#         # 🔔 alert staff if any of their docs have been reviewed
-#         reviewed = documents.exclude(status="pending").exists()
-#         if reviewed:
-#             messages.info(
-#                 request,
-#                 "You have reviewed files. Please check their status!"
-#             )
-
-#     else:
-#         documents = Document.objects.none()
-#         role = "none"
-
-#     return render(
-#         request,
-#         "training_docs/review.html",
-#         {"documents": documents, "role": role},
-#     )
 @login_required
 def review_document(request):
     user = request.user
