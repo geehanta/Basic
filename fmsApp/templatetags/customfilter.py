@@ -16,3 +16,12 @@ def encryptdata(value):
     fernet = Fernet(settings.ID_ENCRYPTION_KEY)
     value = fernet.encrypt(str(value).encode())
     return value
+
+@register.filter
+def get(dictionary, key):
+    """Safely get a key from a dict."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key)
+    return None
+
+

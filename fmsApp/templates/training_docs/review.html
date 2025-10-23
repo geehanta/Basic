@@ -75,30 +75,22 @@
                     <div class="card mb-3">
                         <div class="card-header section-header">Verification of Job Qualifications</div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between">
-                                1. Privacy Act Statement <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                2. Curriculum Vitae (CV) <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                3. Job Description <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                4. Additional Duty Appointment  <span class="badge bg-secondary">Optional</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                5. CLIP Testing Qualification Form <span class="badge bg-secondary">Optional</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                6. College/Technical Diploma <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                7. Registration/Board Certification <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                8. Other Personnel Documentation <span class="badge bg-secondary">Optional</span>
-                            </li>
+                            {% for item in section_items.section1 %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-item-click"
+                                    data-section="section1"
+                                    data-doctype="{{ item.name }}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-title="{{ item.tooltip }}">
+                                    {{ item.num }}. {{ item.name }}
+                                    {% with section_counts=doc_counts.section1 %}
+                                        {% if section_counts|get:item.name %}
+                                            <span class="badge bg-success">{{ section_counts|get:item.name }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not uploaded</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
@@ -119,8 +111,8 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {% for doc in documents %}
+                                    <tbody>                                      
+                                        {% for doc in section_docs.section1 %}
                                         <tr>
                                             <td>{{ doc.doc_type }}</td>
                                             <td>{{ doc.uploaded_by }}</td>
@@ -184,21 +176,23 @@
                     <div class="card mb-3">
                         <div class="card-header section-header">Department orientation Records</div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between">
-                                1. Statement of Department Mission <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                2. Orientation Checklist <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                3. Initial SOP Training Checklist <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                4. Initial Competency Testing Results <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                5. Other Orientation Docs <span class="badge bg-secondary">Optional</span>
-                            </li>
+                            {% for item in section_items.section2 %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-item-click"
+                                    data-section="section2"
+                                    data-doctype="{{ item.name }}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-title="{{ item.tooltip }}">
+                                    {{ item.num }}. {{ item.name }}
+                                    {% with section_counts=doc_counts.section2 %}
+                                        {% if section_counts|get:item.name %}
+                                            <span class="badge bg-success">{{ section_counts|get:item.name }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not uploaded</span>
+                                        {% endif %}
+                                    {% endwith %}
+
+                                </li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
@@ -206,7 +200,69 @@
                     <div class="card">
                         <div class="card-header section-header">Uploaded Files</div>
                         <div class="card-body">
-                            <p class="text-muted text-center">No documents uploaded in this section.</p>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table id="documentTable" class="table table-bordered table-hover table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Uploaded By</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                      
+                                        {% for doc in section_docs.section2 %}
+                                        <tr>
+                                            <td>{{ doc.doc_type }}</td>
+                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
+                                            <td>
+                                                <span class="doc-status {{ doc.status|lower }}">
+                                                    {{ doc.status }}
+                                                </span>
+                                            </td>
+                                            <td  class="action-buttons">
+                                                
+                                                {% if "reviewer" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <button class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reviewModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}"
+                                                            data-status="{{ doc.status }}"
+                                                            data-feedback="{{ doc.reviewer_feedback }}">
+                                                        Review
+                                                    </button>
+                                                {% endif %}
+
+                                                {% if "staff" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <button class="btn btn-sm btn-warning"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#uploadModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-section="{{ doc.section }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}">
+                                                        Update
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-btn"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-docname="{{ doc.doc_type }}">
+                                                        Delete
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                            <tr><td colspan="6" class="text-center">No documents in this section yet.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -219,77 +275,123 @@
                 <div class="col-lg-4">
                     <div class="card mb-3">
                         <div class="card-header section-header">Education, Training, Competency</div>
-                        <ul class="list-group list-group-flush">
-                            <!-- <li class="list-group-item d-flex justify-content-between">
-                                1. Short Course Documentation <span class="badge bg-dark">Required</span>
-                            </li>  -->
-                            <li class="list-group-item dropdown">
-                                <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none  dropdown-toggle" 
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                1. Short Course Documentation
-                                </a>
+                            <ul class="list-group list-group-flush">
+                                {% for item in section_items.section3 %}
+                                    {% if item.categories %}
+                                        <!-- PARENT ITEM -->
+                                        <li class="list-group-item">
+                                            <div class="fw-bold mb-2">{{ item.num }}. {{ item.name }}</div>
+                                            <!-- <ul class="list-group ms-3 border-start ps-2"> -->
+                                            <ul class="list-group sublist  ps-0"> </ul>                                          
+                                                {% for category, subitems in item.categories.items %}
+                                                    {% for sub in subitems %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center list-item-click py-1"
+                                                            data-section="section3"
+                                                            data-doctype="{{ sub.name }}"
+                                                            data-bs-toggle="tooltip"
+                                                            data-bs-title="{{ sub.tooltip }}">
+                                                            <span>{{ sub.name }}</span>
+                                                            {% if sub.count %}
+                                                                <span class="badge bg-success">{{ sub.count }}</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Not uploaded</span>
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
 
-                                <!-- Dropdown menu -->
-                                <ul class="dropdown-menu w-100 p-2">
-                                <!-- CITI Category -->
-                                <li class="fw-bold text-muted small mb-1">CITI Category</li>
-                                <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    Human Research <span class="badge bg-dark">Required</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    Safety / Biosafety <span class="badge bg-warning">Priority</span>
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-
-                                <!-- ICT Category -->
-                                <li class="fw-bold text-muted small mb-1">ICT Category</li>
-                                <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    JKO Cyberawareness <span class="badge bg-dark">Required</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    HIPAA <span class="badge bg-warning">Priority</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    Anti-terrorism Training <span class="badge bg-secondary">Optional</span>
-                                    </a>
-                                </li>
-                                </ul>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                2. Routine Competency Records <span class="badge bg-warning">Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                3. Annual SOP Training Docs <span class="badge bg-warning"> Priority</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                4. Weekly Training Docs <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                5. In-service Training Docs <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                6. Publications <span class="badge bg-dark">Required</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                7. Other Training Docs <span class="badge bg-secondary">Optional</span>
-                            </li>
-                        </ul>
+                                    {% else %}
+                                        <!-- NORMAL ITEM -->
+                                        <li class="list-group-item d-flex justify-content-between align-items-center list-item-click ms-3 border-bottom"
+                                            data-section="section3"
+                                            data-doctype="{{ item.name }}"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="{{ item.tooltip }}">
+                                            {{ item.num }}. {{ item.name }}
+                                            {% if item.count %}
+                                                <span class="badge bg-success">{{ item.count }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Not uploaded</span>
+                                            {% endif %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
                     </div>
-                </div>
+                    </div>
+
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-header section-header">Uploaded Files</div>
                         <div class="card-body">
                             <p class="text-muted text-center">No documents uploaded in this section.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table id="documentTable" class="table table-bordered table-hover table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Uploaded By</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                      
+                                        {% for doc in section_docs.section3 %}
+                                        <tr>
+                                            <td>{{ doc.doc_type }}</td>
+                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
+                                            <td>
+                                                <span class="doc-status {{ doc.status|lower }}">
+                                                    {{ doc.status }}
+                                                </span>
+                                            </td>
+                                            <td  class="action-buttons">
+                                                
+                                                {% if "reviewer" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <button class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reviewModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}"
+                                                            data-status="{{ doc.status }}"
+                                                            data-feedback="{{ doc.reviewer_feedback }}">
+                                                        Review
+                                                    </button>
+                                                {% endif %}
+
+                                                {% if "staff" in roles %}
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <button class="btn btn-sm btn-warning"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#uploadModal"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-section="{{ doc.section }}"
+                                                            data-doctype="{{ doc.doc_type }}"
+                                                            data-description="{{ doc.description }}">
+                                                        Update
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger delete-btn"
+                                                            data-doc="{{ doc.id }}"
+                                                            data-docname="{{ doc.doc_type }}">
+                                                        Delete
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                            <tr><td colspan="6" class="text-center">No documents in this section yet.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -401,126 +503,185 @@
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
+<!-- ========== Django data for JS use ========== -->
+<!-- <script id="section-items" type="application/json">
+    {{ section_items|safe|json_script:"section-items" }}
+</script> -->
+{{ section_items|json_script:"section-items" }}
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Bootstrap toasts
-    document.querySelectorAll('.toast').forEach(toastEl => {
+
+document.addEventListener("DOMContentLoaded", function () {
+    const sectionItemsScript = document.getElementById("section-items");
+    window.sectionItems = sectionItemsScript ? JSON.parse(sectionItemsScript.textContent) : {};
+    // --- Bootstrap toasts ---
+    document.querySelectorAll(".toast").forEach(toastEl => {
         new bootstrap.Toast(toastEl, { delay: 4000 }).show();
     });
+
+    // --- Enable all tooltips ---
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
 });
 
-$(document).on('click', '.delete-btn', function () {
-    const docId = $(this).data('doc');
-    const docName = $(this).data('docname');
+// --- Delete confirmation ---
+$(document).on("click", ".delete-btn", function () {
+    const docId = $(this).data("doc");
+    const docName = $(this).data("docname");
     if (confirm(`Are you sure you want to delete "${docName}"?`)) {
         window.location.href = `/documents/delete/${docId}/`;
     }
 });
 
-// Available document types per section
-const documentTypes = {
-    section1: [
-        "Privacy Act Statement",
-        "Curriculum Vitae (CV)",
-        "Job Description",
-        "Additional Duty Appointment Orders",
-        "CLIP Testing Qualification Form",
-        "College or Technical School Diploma",
-        "Registration or Board Certification",
-        "Other Personnel Documentation"
-    ],
-    section2: [
-        "Statement of Department Mission",
-        "Orientation Checklist",
-        "Initial SOP Training Checklist",
-        "Competency Test Results",
-        "Other Orientation Documentation"
-    ],
-    section3: [
-        "Short Course Documentation",
-        "Routine Competency Testing Records",
-        "Annual SOP Training Documentation",
-        "Weekly Training Documentation",
-        "In-service Training Documentation",
-        "Publications",
-        "Other Training Documentation"
-    ]
-};
+// --- Make list items clickable (for modal prefill) ---
+$(document).on("click", ".list-item-click", function (e) {
+    e.preventDefault();
 
-// Populate document type dropdown dynamically
-$('#section').on('change', function() {
-    const sectionId = $(this).val();
-    const $documentType = $('#documentType');
-    $documentType.empty().append('<option value="" disabled selected>Select a document type</option>');
-    if (documentTypes[sectionId]) {
-        documentTypes[sectionId].forEach(type => {
-            $documentType.append(`<option value="${type}">${type}</option>`);
-        });
-        $documentType.prop('disabled', false);
-    } else {
-        $documentType.prop('disabled', true);
-    }
+    // Remove previous highlights and set active
+    $(".list-item-click").removeClass("active-item");
+    $(this).addClass("active-item");
+
+    const section = $(this).data("section");
+    const docType = $(this).data("doctype");
+
+    // Show modal
+    $("#uploadModal").modal("show");
+
+    // Prefill section (triggers section change)
+    $("#section").val(section).trigger("change");
+
+    // When section types are ready, select the right document type
+    $(document).one("typesPopulated", function () {
+        $("#documentType").val(docType).trigger("change");
+    });
 });
 
-// Upload modal: reset or load update
-$('#uploadModal').on('show.bs.modal', function (event) {
+
+// --- Add teal highlight style dynamically ---
+// --- Add modern highlight style dynamically ---
+// --- Add highlight style dynamically ---
+$("<style>")
+    .prop("type", "text/css")
+    .html(`
+        /* Default state */
+        .list-item-click {
+            background-color: #fff;
+            color: #212529;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+            /* Scrollable left panel */
+        .col-lg-4 .card {
+            max-height: 550px; /* adjust as needed */
+            overflow-y: auto;
+        }
+
+        /* Hover effect */
+        .list-item-click:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Selected / active item (keep teal background) */
+        .active-item {
+            background-color: teal !important;
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        /* Subitems inside dropdowns */
+        .dropdown-menu .list-item-click {
+            color: #212529;
+            background-color: #fff;
+        }
+        .dropdown-menu .list-item-click:hover {
+            background-color: #e9ecef;
+            color: #000;
+        }
+    `)
+    .appendTo("head");
+
+
+
+// --- Upload Modal Logic ---
+$("#uploadModal").on("show.bs.modal", function (event) {
     const button = $(event.relatedTarget);
-    const docId = button.data('doc');
+    const docId = button.data("doc");
 
     if (docId) {
-        $('#uploadDocId').val(docId);
-        $('#section').val(button.data('section')).trigger('change');  // ensure dropdown refresh
-        $('#documentType').val(button.data('doctype'));
-        $('#description').val(button.data('description'));
-        $('.modal-title', this).text('Update Document');
-        $('#saveDocumentBtn').text('Update')
-            .removeClass('btn-primary').addClass('btn-warning');
-    } else {
-        $('#uploadForm')[0].reset();
-        $('#uploadDocId').val('');
-        $('#documentType').empty().append('<option value="" disabled selected>Select a section first</option>').prop('disabled', true);
-        $('.modal-title', this).text('Upload Document');
-        $('#saveDocumentBtn').text('Upload')
-            .removeClass('btn-warning').addClass('btn-primary');
+    // Editing an existing document
+    $("#uploadDocId").val(docId);
+    $("#section").val(button.data("section")).trigger("change");
+
+    // Wait until the dropdown is ready before setting doc type
+    $(document).one("typesPopulated", function () {
+        $("#documentType").val(button.data("doctype")).trigger("change");
+    });
+
+    $("#description").val(button.data("description"));
+    $(".modal-title", this).text("Update Document");
+    $("#saveDocumentBtn").text("Update")
+        .removeClass("btn-primary").addClass("btn-warning");
+    }else {
+        // Fresh upload
+        $("#uploadForm")[0].reset();
+        $("#uploadDocId").val("");
+        $("#documentType")
+            .empty()
+            .append('<option value="" disabled selected>Select a section first</option>')
+            .prop("disabled", true);
+        $(".modal-title", this).text("Upload Document");
+        $("#saveDocumentBtn").text("Upload")
+            .removeClass("btn-warning").addClass("btn-primary");
     }
 });
-// Reviewer modal: set action + values
-$('#reviewModal').on('show.bs.modal', function (event) {
-    const button = $(event.relatedTarget);
-    const docId = button.data('doc');
-    const docName = button.data('doctype');
-    const feedback = button.data('feedback');
-    const status = button.data('status');
 
-    // set hidden doc_id
-    $('#reviewDocId').val(docId);
+// --- Populate document types dynamically from server-side list (Django) ---
+$("#section").on("change", function () {
+    const sectionId = $(this).val();
+    const $documentType = $("#documentType");
+    $documentType.empty().append('<option value="" disabled selected>Select a document type</option>');
 
-    // update form action dynamically
-    const actionTemplate = "{% url 'review_document_submit' 0 %}";
-    const newAction = actionTemplate.replace("/0/", "/" + docId + "/");
-    $('#reviewForm').attr('action', newAction);
+    const sectionData = window.sectionItems ? window.sectionItems[sectionId] : null;
+    if (sectionData) {
+        sectionData.forEach(item => {
+            if (item.categories) {
+                for (const [category, subs] of Object.entries(item.categories)) {
+                    subs.forEach(sub => {
+                        $documentType.append(`<option value="${sub.name}">${sub.name}</option>`);
+                    });
+                }
+            } else {
+                $documentType.append(`<option value="${item.name}">${item.name}</option>`);
+            }
+        });
+        $documentType.prop("disabled", false);
+    } else {
+        $documentType.prop("disabled", true);
+    }
 
-    // preload fields
-    $('#status').val(status);
-    $('#reviewer_feedback').val(feedback);
+    // ✅ Fire event once dropdown is ready
+    $(document).trigger("typesPopulated");
 });
-$('#reviewModal').on('show.bs.modal', function (event) {
-    const button = $(event.relatedTarget);
-    const docId = button.data('doc');
-    const docName = button.data('doctype');
-    const feedback = button.data('feedback');
-    const status = button.data('status');
 
-    $('#reviewDocId').val(docId);
+
+// --- Reviewer Modal ---
+$("#reviewModal").on("show.bs.modal", function (event) {
+    const button = $(event.relatedTarget);
+    const docId = button.data("doc");
+    const docName = button.data("doctype");
+    const feedback = button.data("feedback");
+    const status = button.data("status");
+
+    $("#reviewDocId").val(docId);
 
     const actionTemplate = "{% url 'review_document_submit' 0 %}";
     const newAction = actionTemplate.replace("/0/", "/" + docId + "/");
-    $('#reviewForm').attr('action', newAction);
+    $("#reviewForm").attr("action", newAction);
 
-    $('#status').val(status);
-    $('#reviewer_feedback').val(feedback);
-    $('#reviewDocumentName').text(docName);  //  show document name
+    $("#status").val(status);
+    $("#reviewer_feedback").val(feedback);
+    $("#reviewDocumentName").text(docName);
 });
 </script>
+
 {% endblock ScriptBlock %}

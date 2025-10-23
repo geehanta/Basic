@@ -179,7 +179,9 @@ td.action-buttons .btn {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
 }
-
+.list-group-item.list-item-click {
+    border-bottom: 1px solid #dee2e6;  /* same Bootstrap divider tone */
+}
 /* Prevent badge from stretching when text wraps */
 .list-group-item .badge {
     flex-shrink: 0;         /* badge stays same size */

@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib import messages
+from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from fms_django.settings import MEDIA_ROOT, MEDIA_URL
 
@@ -151,6 +152,8 @@ def dashboard(request):
 
 
 #### Document Upload/Update View ###
+
+
 @login_required
 def upload_document(request):
     if request.method == "POST":
@@ -158,35 +161,56 @@ def upload_document(request):
         section = request.POST.get("section")
         doc_type = request.POST.get("doc_type")
         description = request.POST.get("description")
-        files = request.FILES.getlist("file")  # <-- multiple files support
+        files = request.FILES.getlist("file")  # multiple files allowed
 
-        if doc_id:  # update (still one document at a time)
+        # Validation
+        if not section or not doc_type:
+            messages.error(request, "Please select a section and document type.")
+            return redirect("review_document")
+
+        # Redirect user back to same section tab
+        redirect_url = f"{reverse('review_document')}#{section}"
+
+        # --- UPDATE MODE (editing existing one) ---
+        if doc_id:
             doc = get_object_or_404(Document, pk=doc_id, uploaded_by=request.user)
             doc.section = section
             doc.doc_type = doc_type
             doc.description = description
             if files:
-                doc.file = files[0]  # only first file used for update
+                doc.file = files[0]  # update file if a new one is provided
             doc.save()
-            messages.success(request, f"Document '{doc.doc_type}' updated successfully.")
-        else:  # new upload (can be multiple)
-            if files:
-                for f in files:
-                    Document.objects.create(
+            messages.success(request, f"✅ '{doc.doc_type}' updated successfully.")
+            return redirect(redirect_url)
+
+        # --- CREATE NEW DOCUMENT(S) ---
+        if files:
+            new_docs = []
+            for f in files:
+                new_docs.append(
+                    Document(
                         section=section,
                         doc_type=doc_type,
                         description=description,
                         file=f,
                         uploaded_by=request.user,
-                        status="pending"
+                        status="pending",
                     )
-                messages.success(request, f"{len(files)} document(s) uploaded successfully and are pending review.")
-            else:
-                messages.error(request, "Please select at least one file to upload.")
+                )
+            Document.objects.bulk_create(new_docs)
+            messages.success(
+                request,
+                f"📄 {len(files)} new document(s) uploaded under '{doc_type}' — pending review.",
+            )
+        else:
+            messages.error(request, "Please select at least one file to upload.")
 
-        return redirect("review_document")
+        return redirect(redirect_url)
 
+    # Non-POST fallback
     return redirect("review_document")
+
+
 
 @login_required
 def delete_document(request, doc_id):
@@ -212,21 +236,99 @@ def review_document(request):
         documents = documents | staff_docs
         roles.append("staff")
 
-        # Notify staff if any of their docs have been reviewed
         if staff_docs.exclude(status="pending").exists():
-            messages.info(
-                request,
-                "You have reviewed files. Please check their status!"
-            )
+            messages.info(request, "You have reviewed files. Please check their status!")
 
     if not roles:
         roles.append("none")
 
+    # Group documents by section for easy rendering
+    section_docs = {
+        "section1": documents.filter(section="section1"),
+        "section2": documents.filter(section="section2"),
+        "section3": documents.filter(section="section3"),
+    }
+
+    # --- Compute badge counts for each document type ---
+    doc_counts = {}
+    for section, docs in section_docs.items():
+        doc_counts[section] = {}
+        for doc in docs:
+            doc_counts[section][doc.doc_type] = doc_counts[section].get(doc.doc_type, 0) + 1
+
+    # --- Section document definitions ---
+    section_items = {
+        "section1": [
+            {"num": 1, "name": "Privacy Act Statement", "tooltip": "Required document for upload"},
+            {"num": 2, "name": "Curriculum Vitae (CV)", "tooltip": "Required document for upload"},
+            {"num": 3, "name": "Job Description", "tooltip": "Required document for upload"},
+            {"num": 4, "name": "Additional Duty Appointment Orders", "tooltip": "Optional supporting document"},
+            {"num": 5, "name": "CLIP Testing Qualification Form", "tooltip": "Optional supporting document"},
+            {"num": 6, "name": "College or Technical School Diploma", "tooltip": "Required education proof"},
+            {"num": 7, "name": "Registration or Board Certification", "tooltip": "Required professional proof"},
+            {"num": 8, "name": "Other Personnel Documentation", "tooltip": "Optional document"},
+        ],
+        "section2": [
+            {"num": 1, "name": "Statement of Department Mission", "tooltip": "Required orientation document"},
+            {"num": 2, "name": "Orientation Checklist", "tooltip": "Required document for upload"},
+            {"num": 3, "name": "Initial SOP Training Checklist", "tooltip": "Required training checklist"},
+            {"num": 4, "name": "Initial Competency Testing Results", "tooltip": "Required testing document"},
+            {"num": 5, "name": "Other Orientation Docs", "tooltip": "Required supporting document"},
+        ],
+        "section3": [
+            {
+                "num": 1,
+                "name": "Short Course Documentation",
+                "tooltip": "Required training proof",
+                "categories": {
+                    "CITI Category": [
+                        {"name": "Human Research", "tooltip": "Required CITI training document"},
+                        {"name": "Safety / Biosafety", "tooltip": "Priority biosafety training"},
+                    ],
+                    "ICT Category": [
+                        {"name": "JKO Cyberawareness", "tooltip": "Required cybersecurity document"},
+                        {"name": "HIPAA", "tooltip": "Priority patient privacy training"},
+                        {"name": "Anti-terrorism Training", "tooltip": "Optional awareness course"},
+                    ],
+                },
+            },
+            {"num": 2, "name": "Routine Competency Records", "tooltip": "Priority competency record"},
+            {"num": 3, "name": "Annual SOP Training Docs", "tooltip": "Priority training documentation"},
+            {"num": 4, "name": "Weekly Training Docs", "tooltip": "Optional ongoing training docs"},
+            {"num": 5, "name": "In-service Training Docs", "tooltip": "Optional internal training docs"},
+            {"num": 6, "name": "Publications", "tooltip": "Optional publications"},
+            {"num": 7, "name": "Other Training Docs", "tooltip": "Optional training docs"},
+        ],
+    }
+
+    # --- Inject counts into section_items (handles nested categories too) ---
+    for section, items in section_items.items():
+        for item in items:
+            # Top-level item count
+            item_name = item["name"]
+            item["count"] = doc_counts.get(section, {}).get(item_name, 0)
+
+            # If the item has categories, inject counts for subitems too
+            if "categories" in item:
+                for category, subitems in item["categories"].items():
+                    for sub in subitems:
+                        sub_name = sub["name"]
+                        sub["count"] = doc_counts.get(section, {}).get(sub_name, 0)
+
+    # --- Render Template ---
     return render(
         request,
         "training_docs/review.html",
-        {"documents": documents.distinct(), "roles": roles},
+        {
+            "documents": documents.distinct(),
+            "roles": roles,
+            "section_docs": section_docs,
+            "doc_counts": doc_counts,
+            "section_items": section_items,
+        },
     )
+    
+
 
 
 @login_required
