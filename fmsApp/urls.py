@@ -27,6 +27,4 @@ urlpatterns = [
     path("documents/upload/", views.upload_document, name="upload_document"),
     path('documents/delete/<int:doc_id>/', views.delete_document, name='delete_document'),
     path("documents/review/<int:pk>/", views.review_document_submit, name="review_document_submit"),
-    
-
 ]

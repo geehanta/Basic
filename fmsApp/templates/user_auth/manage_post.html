@@ -15,7 +15,7 @@
         </div>
         <div class="form-group mb-3">
             <label for="file_path" class="control-label">File</label>
-            <input type="file" class="form-control rounded-0" id="file_path" name="file_path" accept='image/*, video/*, audio/*, application/pdf, text/csv, text/plain, application/zip, .docs,.doc, application/ppt, .ppt' {% if not post %} required {% endif %}>
+            <input type="file" class="form-control rounded-0" id="file_path" name="file_path" accept='image/*, application/pdf, text/csv, text/plain, application/zip, .docs,.doc, application/ppt, .ppt' {% if not post %} required {% endif %}>
             <small class="text-muted">Accepts multiple formats</small>
             {% if post.file_path %}
             <div>

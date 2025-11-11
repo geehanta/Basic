@@ -215,12 +215,12 @@
   align-items: center;
 }
 .sidebar .profile-details img{
-  height: 52px;
-  width: 52px;
+  height: 55px;
+  width: 55px;
   object-fit: cover;
   border-radius: 50%;
   margin: 0 14px 0 12px;
-  background: rgba(5, 126, 55, 0.877);
+  background: teal;
   transition: all 0.5s ease;
 }
 .sidebar.close .profile-details img{
@@ -325,9 +325,27 @@
 
   <!-- Profile footer -->
   <div class="profile-details">
-    <div class="profile-content">
-      <img src="https://gravatar.com/avatar/f57bddebd1edf91412d5d68702530099" alt="profileImg">
-    </div>
+    <div class="profile-content text-center">
+    {% if user.is_authenticated %}
+        {% if user.profile.profile_image %}
+            <img src="{{ user.profile.profile_image.url }}" 
+                alt="{{ user.first_name }}'s Profile Picture"
+                class="rounded-circle shadow-sm"
+                style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #ccc;">
+        {% else %}
+            <img src="{{ MEDIA_URL }}profile_pics/default.png" 
+                alt="Default Profile Picture"
+                class="rounded-circle shadow-sm"
+                style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #ccc;">
+        {% endif %}
+    {% else %}
+        <img src="{{ MEDIA_URL }}profile_pics/default.png" 
+            alt="Guest Profile Picture"
+            class="rounded-circle shadow-sm"
+            style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #ccc;">
+    {% endif %}
+  </div>
+
     <div class="name-job">
       <div class="profile_name">BSL</div>
       <div class="job">System</div>

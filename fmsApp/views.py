@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from fms_django.settings import MEDIA_ROOT, MEDIA_URL
+from .models import UserProfile
 
 import json
 import base64
@@ -32,6 +33,9 @@ def login_user(request):
 
         user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
+            #  Ensure user has a profile immediately upon login
+            UserProfile.objects.get_or_create(user=user)
+
             login(request, user)
             resp['status'] = 'success'
             # Redirect to the 'next' URL if it exists, otherwise redirect to studies_dashboard
@@ -40,6 +44,7 @@ def login_user(request):
             resp['msg'] = "Incorrect username or password"
 
     return HttpResponse(json.dumps(resp), content_type='application/json')
+
 
 
 def logoutuser(request):
@@ -76,23 +81,37 @@ def registerUser(request):
 
 @login_required
 def profile(request):
-    context = {"page_title": "Profile"}
+    # Ensure profile exists (safety check)
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    context = {
+        "page_title": "Profile",
+        "profile": profile
+    }
     return render(request, 'user_auth/profile.html', context)
 
-
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name='staff').exists())
+@user_passes_test(lambda u: u.groups.filter(name__in=['staff', 'reviewer']).exists())
 def update_profile(request):
-    user = User.objects.get(id=request.user.id)
-    context = {"page_title": "Update Profile"}
+    user = request.user  # current logged-in user
+    # Ensure user has a profile (created automatically by signal, but this is safe)
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    context = {
+        "page_title": "Update Profile",
+        "profile": profile  # so template can access {{ profile.profile_image.url }}
+    }
 
     if request.method == 'POST':
-        form = UpdateProfile(request.POST, instance=user)
+        # Include request.FILES to process uploaded images
+        form = UpdateProfile(request.POST, request.FILES, instance=user)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, "Profile has been updated")
+            form.save()  # form handles both User and UserProfile
+            messages.success(request, " Your profile has been updated successfully.")
             return redirect("profile")
         else:
+            messages.error(request, " Please correct the errors below.")
             context['form'] = form
     else:
         form = UpdateProfile(instance=user)
@@ -180,7 +199,7 @@ def upload_document(request):
             if files:
                 doc.file = files[0]  # update file if a new one is provided
             doc.save()
-            messages.success(request, f"✅ '{doc.doc_type}' updated successfully.")
+            messages.success(request, f" '{doc.doc_type}' Update successful!.")
             return redirect(redirect_url)
 
         # --- CREATE NEW DOCUMENT(S) ---
@@ -200,7 +219,7 @@ def upload_document(request):
             Document.objects.bulk_create(new_docs)
             messages.success(
                 request,
-                f"📄 {len(files)} new document(s) uploaded under '{doc_type}' — pending review.",
+                f" {len(files)} new document(s) uploaded under '{doc_type}' — pending review.",
             )
         else:
             messages.error(request, "Please select at least one file to upload.")
@@ -292,12 +311,12 @@ def review_document(request):
                     ],
                 },
             },
-            {"num": 2, "name": "Routine Competency Records", "tooltip": "Priority competency record"},
+            {"num": 2, "name": "Other Training Docs", "tooltip": "Optional training docs"},
             {"num": 3, "name": "Annual SOP Training Docs", "tooltip": "Priority training documentation"},
             {"num": 4, "name": "Weekly Training Docs", "tooltip": "Optional ongoing training docs"},
-            {"num": 5, "name": "In-service Training Docs", "tooltip": "Optional internal training docs"},
+            {"num": 5, "name": "Routine Competency Records", "tooltip": "Priority competency records"},
             {"num": 6, "name": "Publications", "tooltip": "Optional publications"},
-            {"num": 7, "name": "Other Training Docs", "tooltip": "Optional training docs"},
+            {"num": 7, "name": "Vaccination records", "tooltip": "Optional internal training docs"},
         ],
     }
 
@@ -359,7 +378,7 @@ def review_document_submit(request, pk):
         elif verdict == "invalid":
             messages.warning(request, f"⚠️ Warning '{doc.doc_type}' marked invalid.")
         else:
-            messages.info(request, f"⌛ '{doc.doc_type}' is pending review.")
+            messages.info(request, f"⌛ '{doc.doc_type}'  pending review.")
 
         return redirect("review_document")
 

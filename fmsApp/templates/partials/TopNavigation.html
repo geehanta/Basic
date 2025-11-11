@@ -64,10 +64,50 @@
             {% if user.id %}
               <li class="nav-item me-3">
                 <a class="nav-link text-light d-flex align-items-center" href="{% url 'profile' %}">
-                  <img src="{{ MEDIA_URL }}/default/default-avatar.png" alt="User Avatar" class="rounded-circle me-2" style="width: 30px; height: 30px;">
-                  Welcome, {{ user.first_name }} {{ user.last_name }}
+                  {% if user.is_authenticated %}
+                     <!-- {% if user.profile.profile_image and user.profile.profile_image.url %}
+                      <img src="{{ user.profile.profile_image.url }}" 
+                          alt="{{ user.first_name }}'s Avatar"
+                          class="rounded-circle me-2"
+                          style="width: 30px; height: 30px; object-fit: cover;">
+                    {% else %}
+                      <img src="{{ MEDIA_URL }}profile_pics/useravatar.jpg" 
+                          alt="Default Avatar"
+                          class="rounded-circle me-2"
+                          style="width: 30px; height: 30px; object-fit: cover;">
+                    {% endif %}  -->
+
+                      <!-- Greeting text updated dynamically -->
+                      <span id="greeting-text" class="ms-1"></span>
+
+                      <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const hours = new Date().getHours();
+                            let greeting;
+
+                            if (hours < 12) {
+                                greeting = "🌞 Good Morning";
+                            } else if (hours < 18) {
+                                greeting = "🌞 Good Afternoon";
+                            } else {
+                                greeting = "🌙 Good Evening";
+                            }
+
+                            const username = "{{ user.first_name|default:user.username }}";
+                            document.getElementById("greeting-text").textContent = `${greeting}, ${username}`;
+                        });
+                      </script>
+
+                  {% else %}
+                      <img src="{{ MEDIA_URL }}profile_pics/useravatar.jpg" 
+                          alt="Default Avatar" 
+                          class="rounded-circle me-2" 
+                          style="width: 30px; height: 30px; object-fit: cover;">
+                      <span class="ms-1">Welcome, Guest</span>
+                  {% endif %}
                 </a>
               </li>
+
               <li class="nav-item me-3">
                 <a class="nav-link text-light" href="{% url 'logout' %}">Logout</a>
               </li>
@@ -95,7 +135,7 @@
           {% if user.id %}
             <li class="nav-item mb-3">
               <a class="nav-link d-flex align-items-center" href="{% url 'profile' %}">
-                <img src="{{ MEDIA_URL }}/default/default-avatar.png" alt="User Avatar" class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                <img src="{{ MEDIA_URL }}/profile_pics/useravatar." alt="User Avatar" class="rounded-circle me-2" style="width: 30px; height: 30px;">
                 Welcome, {{ user.first_name }} {{ user.last_name }}
               </a>
             </li>

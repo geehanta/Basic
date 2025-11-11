@@ -8,18 +8,18 @@
     <!-- ================= HEADER ================= -->
     <div class="header-section d-flex justify-content-between align-items-center">
         <div>
-            <h3 class="m-0">
+            <h4 class="m-0">
                 {% if "reviewer" in roles and "staff" in roles %}
                     Training Docs Review & Upload
                 {% elif "reviewer" in roles %}
-                    Training Docs Review
+                     Review Training Documents
                 {% elif "staff" in roles %}
-                    Training Docs Upload
+                     Upload Training Documents
                 {% else %}
-                    Unauthorized Access!
+                    Unauthorized Access!Contact Admin.
                 {% endif %}
-            </h3>
-            <span class="version-tag" style="font-size: 0.7rem; font-weight: 500; color: #6c757d;">VERSION .05 FEB 2025</span>
+            </h4>
+            
         </div>
         <div>
             {% if "reviewer" in roles %}
@@ -38,8 +38,8 @@
     </div>
 
     <!-- ================= BADGE BAR ================= -->
-    <div class="bg-light p-2 border-bottom">
-        <span class="badge bg-secondary">Total Files Uploaded: {{ documents|length }}</span>
+    <div class="mb-3 p-2">
+        <span class="badge bg-secondary">You have Uploaded: {{ documents|length }} files</span>
     </div>
 
     <!-- ================= TABS ================= -->
@@ -326,9 +326,6 @@
                     <div class="card">
                         <div class="card-header section-header">Uploaded Files</div>
                         <div class="card-body">
-                            <p class="text-muted text-center">No documents uploaded in this section.</p>
-                        </div>
-                        <div class="card-body">
                             <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                                 <table id="documentTable" class="table table-bordered table-hover table-striped table-sm">
                                     <thead>
@@ -397,7 +394,7 @@
                 </div>
             </div>
         </div>
-
+            <span class="version-tag" style="font-size: 0.9rem; font-weight: 400; color: #525355;">VERSION .05 FEB 2025</span>
     </div>
 </div>
 
@@ -682,6 +679,29 @@ $("#reviewModal").on("show.bs.modal", function (event) {
     $("#reviewer_feedback").val(feedback);
     $("#reviewDocumentName").text(docName);
 });
+$(document).ready(function () {
+    // Initialize DataTables for each section table
+    $("#section1 #documentTable, #section2 #documentTable, #section3 #documentTable").DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        responsive: true,
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
+        pageLength: 10,
+        language: {
+            search: "Filter records:",
+            lengthMenu: "Show _MENU_ entries per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: { previous: "Prev", next: "Next" },
+            zeroRecords: "No matching documents found"
+        },
+        columnDefs: [
+            { orderable: false, targets: -1 } // Disable ordering on Actions column
+        ]
+    });
+});
+
 </script>
 
 {% endblock ScriptBlock %}
