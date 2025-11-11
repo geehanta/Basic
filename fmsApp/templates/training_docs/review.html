@@ -115,7 +115,17 @@
                                         {% for doc in section_docs.section1 %}
                                         <tr>
                                             <td>{{ doc.doc_type }}</td>
-                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td class="d-flex align-items-center">
+                                                {% if doc.uploaded_by.profile.profile_image and "useravatar.jpg" not in doc.uploaded_by.profile.profile_image.url %}
+                                                    <img src="{{ doc.uploaded_by.profile.profile_image.url }}"
+                                                        alt="{{ doc.uploaded_by.username }}"
+                                                        class="rounded-circle me-2"
+                                                        style="width: 26px; height: 26px; object-fit: cover;">
+                                                {% else %}
+                                                    <i class="bi bi-person-circle text-secondary me-2" style="font-size: 1.4rem;"></i>
+                                                {% endif %}
+                                                <span>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</span>
+                                            </td>
                                             <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
                                             <td>
                                                 <span class="doc-status {{ doc.status|lower }}">
@@ -125,7 +135,7 @@
                                             <td  class="action-buttons">
                                                 
                                                 {% if "reviewer" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-primary"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#reviewModal"
@@ -139,7 +149,7 @@
                                                 {% endif %}
 
                                                 {% if "staff" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#uploadModal"
@@ -215,7 +225,17 @@
                                         {% for doc in section_docs.section2 %}
                                         <tr>
                                             <td>{{ doc.doc_type }}</td>
-                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td class="d-flex align-items-center">
+                                                {% if doc.uploaded_by.profile.profile_image and "useravatar.jpg" not in doc.uploaded_by.profile.profile_image.url %}
+                                                    <img src="{{ doc.uploaded_by.profile.profile_image.url }}"
+                                                        alt="{{ doc.uploaded_by.username }}"
+                                                        class="rounded-circle me-2"
+                                                        style="width: 26px; height: 26px; object-fit: cover;">
+                                                {% else %}
+                                                    <i class="bi bi-person-circle text-secondary me-2" style="font-size: 1.4rem;"></i>
+                                                {% endif %}
+                                                <span>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</span>
+                                            </td>
                                             <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
                                             <td>
                                                 <span class="doc-status {{ doc.status|lower }}">
@@ -225,7 +245,7 @@
                                             <td  class="action-buttons">
                                                 
                                                 {% if "reviewer" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-primary"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#reviewModal"
@@ -239,7 +259,7 @@
                                                 {% endif %}
 
                                                 {% if "staff" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#uploadModal"
@@ -341,7 +361,17 @@
                                         {% for doc in section_docs.section3 %}
                                         <tr>
                                             <td>{{ doc.doc_type }}</td>
-                                            <td>{{ doc.uploaded_by }}</td>
+                                            <td class="d-flex align-items-center">
+                                                {% if doc.uploaded_by.profile.profile_image and "useravatar.jpg" not in doc.uploaded_by.profile.profile_image.url %}
+                                                    <img src="{{ doc.uploaded_by.profile.profile_image.url }}"
+                                                        alt="{{ doc.uploaded_by.username }}"
+                                                        class="rounded-circle me-2"
+                                                        style="width: 26px; height: 26px; object-fit: cover;">
+                                                {% else %}
+                                                    <i class="bi bi-person-circle text-secondary me-2" style="font-size: 1.4rem;"></i>
+                                                {% endif %}
+                                                <span>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</span>
+                                            </td>
                                             <td>{{ doc.uploaded_at|date:"Y-m-d" }}</td>
                                             <td>
                                                 <span class="doc-status {{ doc.status|lower }}">
@@ -351,7 +381,7 @@
                                             <td  class="action-buttons">
                                                 
                                                 {% if "reviewer" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-primary"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#reviewModal"
@@ -365,7 +395,7 @@
                                                 {% endif %}
 
                                                 {% if "staff" in roles %}
-                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info">Preview</a>
+                                                    <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-info" title="Preview"><i class="bi bi-eye"></i></a>
                                                     <button class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#uploadModal"
